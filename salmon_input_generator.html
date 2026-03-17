@@ -593,18 +593,20 @@
                                 <input type="text" id="hz_m" class="input" value="0.0" placeholder="hz_m">
                             </div>
                         </div>
-                        <div class="mt-2">
-                            <label class="label">Vacuum Padding (multiscale)</label>
-                            <div class="grid grid-2 gap-2">
-                                <input type="text" id="nxvacl_m" class="input" value="0" placeholder="nxvacl_m">
-                                <input type="text" id="nxvacr_m" class="input" value="0" placeholder="nxvacr_m">
+                        <div id="multiScaleFields" class="hidden">
+                            <div class="mt-2">
+                                <label class="label">Vacuum Padding (multiscale)</label>
+                                <div class="grid grid-2 gap-2">
+                                    <input type="text" id="nxvacl_m" class="input" value="0" placeholder="nxvacl_m">
+                                    <input type="text" id="nxvacr_m" class="input" value="0" placeholder="nxvacr_m">
+                                </div>
                             </div>
-                        </div>
-                        <div class="mt-2">
-                            <label class="label">Maxwell Boundary (multiscale)</label>
-                            <div class="grid grid-2 gap-2">
-                                <input type="text" id="boundary_em_1_1" class="input" value="abc" placeholder="boundary_em(1,1)">
-                                <input type="text" id="boundary_em_1_2" class="input" value="abc" placeholder="boundary_em(1,2)">
+                            <div class="mt-2">
+                                <label class="label">Maxwell Boundary (multiscale)</label>
+                                <div class="grid grid-2 gap-2">
+                                    <input type="text" id="boundary_em_1_1" class="input" value="abc" placeholder="boundary_em(1,1)">
+                                    <input type="text" id="boundary_em_1_2" class="input" value="abc" placeholder="boundary_em(1,2)">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2123,10 +2125,12 @@
             const theory = document.getElementById('theory').value;
             const rtVisible = isRTTheory(theory);
             const singleScaleVisible = isSingleScaleTheory(theory) || isMultiScaleTheory(theory);
+            const multiScaleVisible = isMultiScaleTheory(theory);
 
             document.getElementById('rtSection').classList.toggle('hidden', !rtVisible);
             document.getElementById('analysisSection').classList.toggle('hidden', false);
             document.getElementById('singleScaleSection').classList.toggle('hidden', !singleScaleVisible);
+            document.getElementById('multiScaleFields').classList.toggle('hidden', !multiScaleVisible);
         }
 
         // Canonical state is the internal source of truth for preview, viewer, validation, and export.
