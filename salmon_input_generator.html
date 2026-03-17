@@ -1,0 +1,3305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SALMON Input Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .grid {
+            display: grid;
+            gap: 24px;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        @media (max-width: 1024px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-3, .grid-5 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-subtitle {
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* Section color themes */
+        .section-teal {
+            background-color: #f0fdfa;
+            border: 1px solid #a7f3d0;
+        }
+
+        .section-teal .section-title {
+            color: #115e59;
+        }
+
+        .section-blue {
+            background-color: #eff6ff;
+            border: 1px solid #93c5fd;
+        }
+
+        .section-blue .section-title {
+            color: #1e3a8a;
+        }
+
+        .section-green {
+            background-color: #f0fdf4;
+            border: 1px solid #86efac;
+        }
+
+        .section-green .section-title {
+            color: #166534;
+        }
+
+        .section-purple {
+            background-color: #faf5ff;
+            border: 1px solid #c4b5fd;
+        }
+
+        .section-purple .section-title {
+            color: #6b21a8;
+        }
+
+        .section-cyan {
+            background-color: #ecfeff;
+            border: 1px solid #67e8f9;
+        }
+
+        .section-cyan .section-title {
+            color: #155e75;
+        }
+
+        .section-orange {
+            background-color: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .section-orange .section-title {
+            color: #9a3412;
+        }
+
+        .section-indigo {
+            background-color: #eef2ff;
+            border: 1px solid #a5b4fc;
+        }
+
+        .section-indigo .section-title {
+            color: #3730a3;
+        }
+
+        .section-pink {
+            background-color: #fdf2f8;
+            border: 1px solid #f9a8d4;
+        }
+
+        .section-pink .section-title {
+            color: #be185d;
+        }
+
+        .section-gray {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+        }
+
+        .section-gray .section-title {
+            color: #374151;
+        }
+
+        .input, .select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .input:focus, .select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .input-small {
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        .label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #374151;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .button-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .button-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .button-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .button-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .button-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .button-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .file-input:hover {
+            border-color: #6b7280;
+        }
+
+        .info-box {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .info-box-success {
+            background-color: #dcfce7;
+            border: 1px solid #86efac;
+            color: #166534;
+        }
+
+        .info-box-warning {
+            background-color: #fef3c7;
+            border: 1px solid #fbbf24;
+            color: #92400e;
+        }
+
+        .info-box-error {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+        }
+
+        .info-box-info {
+            background-color: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+
+        .atom-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .atom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .preview-area {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .viewer-container {
+            position: relative;
+            height: 360px;
+            width: 100%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .viewer-status {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-between {
+            justify-content: space-between;
+        }
+
+        .flex-center {
+            align-items: center;
+        }
+
+        .gap-2 {
+            gap: 8px;
+        }
+
+        .gap-4 {
+            gap: 16px;
+        }
+
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+
+        .mb-4 {
+            margin-bottom: 16px;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+
+        .text-sm {
+            font-size: 12px;
+        }
+
+        .text-xs {
+            font-size: 10px;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        .font-medium {
+            font-weight: 500;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .icon-lg {
+            width: 32px;
+            height: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-card">
+            <div class="header">
+                <svg class="icon icon-lg" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <path d="M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z"></path>
+                    <path d="M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z"></path>
+                </svg>
+                <h1>SALMON Input Generator</h1>
+            </div>
+
+            <div class="grid grid-2">
+                <!-- Left Column -->
+                <div>
+                    <!-- CIF Upload Section -->
+                    <div class="section section-teal">
+                        <h2 class="section-title">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17,8 12,3 7,8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Import Crystal Structure (CIF)
+                        </h2>
+                        <div>
+                            <label class="label">Upload CIF File</label>
+                            <input type="file" accept=".cif" id="cifInput" class="file-input">
+                        </div>
+                        <div id="cifStatus"></div>
+                    </div>
+
+                    <!-- Calculation Settings -->
+                    <div class="section section-blue">
+                        <h2 class="section-title">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                            Calculation Settings
+                        </h2>
+                        <div class="grid grid-2 gap-4">
+                            <div>
+                                <label class="label">Theory</label>
+                                <select id="theory" class="select">
+                                    <option value="dft">DFT - Ground State Calculation</option>
+                                    <option value="tddft_response">Linear Response TDDFT</option>
+                                    <option value="tddft_pulse">RT-TDDFT - Pulse Excitation</option>
+                                    <option value="single_scale_maxwell_tddft">Single-scale Maxwell-TDDFT</option>
+                                    <option value="multi_scale_maxwell_tddft">Multiscale Maxwell-TDDFT</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label">XC Functional</label>
+                                <select id="xc" class="select">
+                                    <option value="PZ">PZ (Perdew-Zunger)</option>
+                                    <option value="TBmBJ">TBmBJ</option>
+                                    <option value="libxc">Use LibXC</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="label">Boundary Condition</label>
+                            <select id="yn_periodic" class="select">
+                                <option value="y">Periodic crystal (&amp;atomic_red_coor)</option>
+                                <option value="n">Isolated system (&amp;atomic_coor)</option>
+                            </select>
+                        </div>
+                        <div class="mt-2">
+                            <label class="label">Template</label>
+                            <div class="flex gap-2">
+                                <select id="templateSelect" class="select">
+                                    <option value="bulk-gs">Bulk GS</option>
+                                    <option value="isolated-gs">Isolated GS</option>
+                                    <option value="bulk-lr">Bulk Linear Response</option>
+                                    <option value="isolated-lr">Isolated Linear Response</option>
+                                    <option value="bulk-rt">Bulk RT</option>
+                                    <option value="isolated-rt">Isolated RT</option>
+                                    <option value="single-scale">Single-scale Maxwell-TDDFT</option>
+                                    <option value="multiscale-testsuite">Multiscale Maxwell-TDDFT (testsuite sample)</option>
+                                </select>
+                                <button class="button button-secondary" type="button" onclick="applySelectedTemplate()">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="rtSection" class="section section-pink hidden">
+                        <h2 class="section-title">RT Parameters</h2>
+                        <div class="grid grid-2 gap-4 mb-4">
+                            <div>
+                                <label class="label">nt</label>
+                                <input type="text" id="nt" class="input" value="4000">
+                            </div>
+                            <div>
+                                <label class="label">dt</label>
+                                <input type="text" id="dt" class="input" value="0.02">
+                            </div>
+                        </div>
+                        <div class="grid grid-2 gap-4 mb-4">
+                            <div>
+                                <label class="label">propagator</label>
+                                <select id="propagator" class="select">
+                                    <option value="etrs">etrs</option>
+                                    <option value="aetrs">aetrs</option>
+                                    <option value="exp_mid">exp_mid</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label">trans_longi</label>
+                                <select id="trans_longi" class="select">
+                                    <option value="tr">tr</option>
+                                    <option value="lo">lo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-3 gap-4 mb-4">
+                            <div>
+                                <label class="label">ae_shape1</label>
+                                <select id="ae_shape1" class="select">
+                                    <option value="Acos2">Acos2</option>
+                                    <option value="Ecos2">Ecos2</option>
+                                    <option value="impulse">impulse</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label">I_wcm2_1</label>
+                                <input type="text" id="I_wcm2_1" class="input" value="1.0d10">
+                            </div>
+                            <div>
+                                <label class="label">omega1</label>
+                                <input type="text" id="omega1" class="input" value="1.55">
+                            </div>
+                        </div>
+                        <div class="grid grid-2 gap-4">
+                            <div>
+                                <label class="label">tw1</label>
+                                <input type="text" id="tw1" class="input" value="10.0">
+                            </div>
+                            <div>
+                                <label class="label">phi_cep1</label>
+                                <input type="text" id="phi_cep1" class="input" value="0.0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="analysisSection" class="section section-gray hidden">
+                        <h2 class="section-title">RT Analysis</h2>
+                        <div class="text-xs mb-4" style="color: #6b7280;">
+                            Public `&analysis` keywords are shown here. Unset items are omitted from the preview.
+                        </div>
+                        <div id="analysisFields"></div>
+                    </div>
+
+                    <div id="singleScaleSection" class="section section-orange hidden">
+                        <h2 class="section-title">Maxwell / Multiscale Grid</h2>
+                        <div class="grid grid-2 gap-4 mb-4">
+                            <div>
+                                <label class="label">method_singlescale</label>
+                                <select id="method_singlescale" class="select">
+                                    <option value="3d">3d</option>
+                                    <option value="1d">1d</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label">fdtddim</label>
+                                <select id="fdtddim" class="select">
+                                    <option value="1d">1d</option>
+                                    <option value="3d">3d</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="label">Maxwell Grid Points</label>
+                            <div class="grid grid-3 gap-2">
+                                <input type="text" id="nx_m" class="input" value="1" placeholder="nx_m">
+                                <input type="text" id="ny_m" class="input" value="1" placeholder="ny_m">
+                                <input type="text" id="nz_m" class="input" value="1" placeholder="nz_m">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="label">Maxwell Grid Spacing</label>
+                            <div class="grid grid-3 gap-2">
+                                <input type="text" id="hx_m" class="input" value="0.0" placeholder="hx_m">
+                                <input type="text" id="hy_m" class="input" value="0.0" placeholder="hy_m">
+                                <input type="text" id="hz_m" class="input" value="0.0" placeholder="hz_m">
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="label">Vacuum Padding (multiscale)</label>
+                            <div class="grid grid-2 gap-2">
+                                <input type="text" id="nxvacl_m" class="input" value="0" placeholder="nxvacl_m">
+                                <input type="text" id="nxvacr_m" class="input" value="0" placeholder="nxvacr_m">
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="label">Maxwell Boundary (multiscale)</label>
+                            <div class="grid grid-2 gap-2">
+                                <input type="text" id="boundary_em_1_1" class="input" value="abc" placeholder="boundary_em(1,1)">
+                                <input type="text" id="boundary_em_1_2" class="input" value="abc" placeholder="boundary_em(1,2)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unit Cell Section -->
+                    <div class="section section-green">
+                        <h2 class="section-title">Unit Cell</h2>
+                        <div id="cellInfo" class="info-box info-box-info hidden mb-4"></div>
+                        <div>
+                            <h3 class="section-subtitle">Lattice Vectors (Å)</h3>
+                            <div id="latticeVectors"></div>
+                        </div>
+                    </div>
+
+                    <!-- Grid Settings -->
+                    <div class="section section-purple">
+                        <h2 class="section-title">Grid Settings</h2>
+                        <div class="mb-4">
+                            <label class="label">Real Space Grid</label>
+                            <div class="grid grid-3 gap-2">
+                                <input type="text" id="rgrid_x" class="input" placeholder="nx" value="12">
+                                <input type="text" id="rgrid_y" class="input" placeholder="ny" value="12">
+                                <input type="text" id="rgrid_z" class="input" placeholder="nz" value="12">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="label">k-point Grid</label>
+                            <div class="grid grid-3 gap-2">
+                                <input type="text" id="kgrid_x" class="input" placeholder="kx" value="4">
+                                <input type="text" id="kgrid_y" class="input" placeholder="ky" value="4">
+                                <input type="text" id="kgrid_z" class="input" placeholder="kz" value="4">
+                            </div>
+                        </div>
+                        <div id="cutoffInfo"></div>
+                    </div>
+
+                    <!-- Electronics & States -->
+                    <div class="section section-cyan">
+                        <h2 class="section-title">Electronics & States</h2>
+                        <div class="grid grid-3 gap-4 mb-4">
+                            <div>
+                                <label class="label">Total Electrons</label>
+                                <input type="text" id="nelec" class="input" value="32">
+                            </div>
+                            <div>
+                                <label class="label">Number of States</label>
+                                <input type="text" id="nstate" class="input" value="32">
+                            </div>
+                            <div>
+                                <label class="label">Temperature (K)</label>
+                                <input type="text" id="temperature_k" class="input" value="-1.0">
+                            </div>
+                        </div>
+                        <div class="info-box info-box-info mb-4">
+                            <div class="font-medium mb-2">Recommended values:</div>
+                            <div class="text-sm">
+                                • Total electrons: sum of valence electrons<br>
+                                • Number of states: typically 1x to 2x the electron count<br>
+                                • Metals: nstate ≈ nelec × 1.5<br>
+                                • Semiconductors / insulators: nstate ≈ nelec × 1
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="button button-primary button-small" onclick="setNstate(1)">nstate = nelec × 1</button>
+                            <button class="button button-primary button-small" onclick="setNstate(1.5)">nstate = nelec × 1.5</button>
+                        </div>
+                    </div>
+
+                    <!-- SCF Settings -->
+                    <div class="section section-orange">
+                        <h2 class="section-title">SCF & Parallel Settings</h2>
+                        <div class="grid grid-2 gap-4 mb-4">
+                            <div>
+                                <label class="label">Max Iterations</label>
+                                <input type="text" id="nscf" class="input" value="300">
+                            </div>
+                            <div>
+                                <label class="label">Convergence Threshold</label>
+                                <input type="text" id="threshold" class="input" value="1.0d-9">
+                            </div>
+                        </div>
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                            <h3 class="section-subtitle">MPI Parallel Settings</h3>
+                            <div class="grid grid-2 gap-4 mb-4">
+                                <div>
+                                    <label class="label">nproc_k</label>
+                                    <input type="text" id="nproc_k" class="input" value="1" placeholder="1">
+                                </div>
+                                <div>
+                                    <label class="label">nproc_ob</label>
+                                    <input type="text" id="nproc_ob" class="input" value="1" placeholder="1">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="label">nproc_rgrid (x, y, z)</label>
+                                <div class="grid grid-3 gap-2">
+                                    <input type="text" id="nproc_rgrid_x" class="input" value="1" placeholder="1">
+                                    <input type="text" id="nproc_rgrid_y" class="input" value="1" placeholder="1">
+                                    <input type="text" id="nproc_rgrid_z" class="input" value="1" placeholder="1">
+                                </div>
+                            </div>
+                            <div class="text-xs mt-2" style="color: #6b7280;">
+                                Safe ground-state defaults are set to 1. Adjust them as needed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Atomic Positions -->
+                    <div class="section section-indigo">
+                        <div class="flex flex-between flex-center mb-4">
+                            <h2 class="section-title">Atomic Positions</h2>
+                            <button class="button button-primary" onclick="addAtom()">Add Atom</button>
+                        </div>
+                        <div class="text-xs mb-4" style="color: #6b7280;">
+                            Atomic coordinates loaded from CIF are stored as fractional coordinates. Isolated templates use Cartesian coordinates. Switching to a periodic system converts stored Cartesian isolated coordinates into fractional coordinates using the current lattice.
+                        </div>
+                        <div id="atomsList"></div>
+                    </div>
+
+                    <div class="section section-blue">
+                        <h2 class="section-title">Structure Viewer</h2>
+                        <div class="text-xs mb-4" style="color: #6b7280;">
+                            The viewer redraws from the current internal state after CIF import, template apply, atom edits, boundary changes, and lattice updates.
+                        </div>
+                        <div id="structureViewer" class="viewer-container"></div>
+                        <div id="structureViewerStatus" class="viewer-status"></div>
+                    </div>
+
+                    <div class="section section-teal">
+                        <h2 class="section-title">Pseudopotentials</h2>
+                        <div class="text-xs mb-4" style="color: #6b7280;">
+                            `file_pseudo`, `lloc_ps`, and `lmax_ps` depend on the system, so they are kept editable per element instead of being auto-generated.
+                        </div>
+                        <div id="pseudoList"></div>
+                        <div id="pseudoWarning"></div>
+                    </div>
+
+                    <!-- Memory Estimation -->
+                    <div class="section section-pink">
+                        <h2 class="section-title">Memory Estimation</h2>
+                        <div id="memoryInfo"></div>
+                    </div>
+
+                    <!-- Preview Section -->
+                    <div class="section section-gray">
+                        <div id="validationSummary" class="info-box info-box-info mb-4"></div>
+                        <div class="flex flex-between flex-center mb-4">
+                            <h2 class="section-title">Input File Preview</h2>
+                            <div class="flex gap-2">
+                                <button id="exportJsonButton" class="button button-primary" onclick="downloadJson()">
+                                    Export JSON
+                                </button>
+                                <button id="importJsonButton" class="button button-primary" onclick="triggerJsonImport()">
+                                    Import JSON
+                                </button>
+                                <button id="downloadButton" class="button button-primary" onclick="downloadInput()">
+                                    <svg class="icon" viewBox="0 0 24 24" style="margin-right: 4px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7,10 12,15 17,10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                    Download
+                                </button>
+                            </div>
+                        </div>
+                        <input type="file" id="jsonFileInput" accept=".json,application/json" class="hidden">
+                        <div id="jsonStatus" class="text-sm mb-2" style="color: #6b7280;"></div>
+                        <div id="downloadStatus" class="text-sm mb-4" style="color: #6b7280;"></div>
+                        <div id="preview" class="preview-area"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+    <script>
+        // Constants
+        const ELEMENT_TO_VALENCE_ELECTRONS = {
+            'H': 1, 'He': 2, 'Li': 1, 'Be': 2, 'B': 3, 'C': 4, 'N': 5, 'O': 6, 'F': 7, 'Ne': 8,
+            'Na': 1, 'Mg': 2, 'Al': 3, 'Si': 4, 'P': 5, 'S': 6, 'Cl': 7, 'Ar': 8,
+            'K': 1, 'Ca': 2, 'Sc': 3, 'Ti': 4, 'V': 5, 'Cr': 6, 'Mn': 7, 'Fe': 8,
+            'Co': 9, 'Ni': 10, 'Cu': 11, 'Zn': 12, 'Ga': 3, 'Ge': 4, 'As': 5, 'Se': 6,
+            'Br': 7, 'Kr': 8
+        };
+
+        const ELEMENT_TO_ATOMIC_NUMBER = {
+            'H': 1, 'He': 2, 'Li': 3, 'Be': 4, 'B': 5, 'C': 6, 'N': 7, 'O': 8, 'F': 9, 'Ne': 10,
+            'Na': 11, 'Mg': 12, 'Al': 13, 'Si': 14, 'P': 15, 'S': 16, 'Cl': 17, 'Ar': 18,
+            'K': 19, 'Ca': 20, 'Sc': 21, 'Ti': 22, 'V': 23, 'Cr': 24, 'Mn': 25, 'Fe': 26,
+            'Co': 27, 'Ni': 28, 'Cu': 29, 'Zn': 30, 'Ga': 31, 'Ge': 32, 'As': 33, 'Se': 34,
+            'Br': 35, 'Kr': 36
+        };
+
+        const ANALYSIS_FIELDS = [
+            { id: 'yn_out_dns', label: 'yn_out_dns', kind: 'select', options: ['y', 'n'], defaultValue: 'y', quoted: true },
+            { id: 'projection_option', label: 'projection_option', kind: 'select', options: ['no', 'gs'], defaultValue: 'no', quoted: true },
+            { id: 'out_projection_step', label: 'out_projection_step', kind: 'text', defaultValue: '100' },
+            { id: 'threshold_projection', label: 'threshold_projection', kind: 'text', defaultValue: '1e-6' },
+            { id: 'yn_out_intraband_current', label: 'yn_out_intraband_current', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+            { id: 'nenergy', label: 'nenergy', kind: 'text', defaultValue: '' },
+            { id: 'de', label: 'de', kind: 'text', defaultValue: '' },
+            { id: 'out_rt_energy_step', label: 'out_rt_energy_step', kind: 'text', defaultValue: '10' },
+            { id: 'yn_out_rt_energy_components', label: 'yn_out_rt_energy_components', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+            { id: 'yn_out_dns_rt', label: 'yn_out_dns_rt', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+            { id: 'out_dns_rt_step', label: 'out_dns_rt_step', kind: 'text', defaultValue: '50' },
+            { id: 'yn_out_dns_ac_je', label: 'yn_out_dns_ac_je', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+            { id: 'out_dns_ac_je_step', label: 'out_dns_ac_je_step', kind: 'text', defaultValue: '50' },
+            { id: 'yn_out_micro_je', label: 'yn_out_micro_je', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+            { id: 'out_micro_je_step', label: 'out_micro_je_step', kind: 'text', defaultValue: '100' },
+            { id: 'yn_out_current_decomposed', label: 'yn_out_current_decomposed', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+            { id: 'out_current_decomposed_step', label: 'out_current_decomposed_step', kind: 'text', defaultValue: '100' }
+        ];
+
+        const templates = {
+            'bulk-gs': {
+                name: 'Bulk GS',
+                theory: 'dft',
+                periodic: 'y',
+                source: 'testsuite 111_bulk_Si_gs_dp',
+                notes: ['Based on SALMON testsuite 111.'],
+                defaults: {
+                    atomic_coordinate_mode: 'fractional',
+                    latticeVectors: [['5.43', '0.0', '0.0'], ['0.0', '5.43', '0.0'], ['0.0', '0.0', '5.43']],
+                    atoms: [
+                        { element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.25', z: '0.25', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.0', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.0', y: '0.5', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.5', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.25', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.75', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.75', z: '0.25', type: 1 }
+                    ],
+                    pseudo: {
+                        Si: { type: 1, izatom: '14', file_pseudo: './Si_rps.dat', lloc_ps: '2', lmax_ps: '2' }
+                    },
+                    rgrid: ['12', '12', '12'],
+                    kgrid: ['2', '2', '2'],
+                    nstate: '32',
+                    nelec: '32',
+                    nscf: '120',
+                    threshold: '1.0d-9',
+                    nt: '3000',
+                    dt: '0.00387',
+                    ae_shape1: 'impulse',
+                    trans_longi: 'lo',
+                    analysis: {
+                        nenergy: '1000',
+                        de: '0.001'
+                    }
+                }
+            },
+            'isolated-gs': {
+                name: 'Isolated GS',
+                theory: 'dft',
+                periodic: 'n',
+                source: 'testsuite 101_C2H2_gs',
+                notes: ['Based on SALMON testsuite 101.'],
+                defaults: {
+                    atomic_coordinate_mode: 'cartesian',
+                    latticeVectors: [['16.0', '0.0', '0.0'], ['0.0', '16.0', '0.0'], ['0.0', '0.0', '16.0']],
+                    atoms: [
+                        { element: 'C', x: '0.000000', y: '0.000000', z: '0.599672', type: 1 },
+                        { element: 'H', x: '0.000000', y: '0.000000', z: '1.662257', type: 2 },
+                        { element: 'C', x: '0.000000', y: '0.000000', z: '-0.599672', type: 1 },
+                        { element: 'H', x: '0.000000', y: '0.000000', z: '-1.662257', type: 2 }
+                    ],
+                    pseudo: {
+                        C: { type: 1, izatom: '6', file_pseudo: 'C_rps.dat', lloc_ps: '1', lmax_ps: '1' },
+                        H: { type: 2, izatom: '1', file_pseudo: 'H_rps.dat', lloc_ps: '0', lmax_ps: '0' }
+                    },
+                    rgrid: ['64', '64', '64'],
+                    kgrid: ['1', '1', '1'],
+                    nscf: '200',
+                    nstate: '10',
+                    nelec: '10',
+                    threshold: '1.0d-9',
+                    nt: '',
+                    dt: '',
+                    ae_shape1: '',
+                    trans_longi: 'tr',
+                    analysis: {
+                        nenergy: '',
+                        de: '',
+                        projection_option: 'no'
+                    }
+                }
+            },
+            'bulk-lr': {
+                name: 'Bulk Linear Response',
+                theory: 'tddft_response',
+                periodic: 'y',
+                source: 'testsuite 112_bulk_Si_rt_response_dp',
+                notes: ['Based on SALMON testsuite 112.'],
+                defaults: {
+                    atomic_coordinate_mode: 'fractional',
+                    latticeVectors: [['5.43', '0.0', '0.0'], ['0.0', '5.43', '0.0'], ['0.0', '0.0', '5.43']],
+                    atoms: [
+                        { element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.25', z: '0.25', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.0', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.0', y: '0.5', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.5', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.25', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.75', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.75', z: '0.25', type: 1 }
+                    ],
+                    pseudo: {
+                        Si: { type: 1, izatom: '14', file_pseudo: './Si_rps.dat', lloc_ps: '2', lmax_ps: '2' }
+                    },
+                    rgrid: ['12', '12', '12'],
+                    kgrid: ['2', '2', '2'],
+                    nstate: '32',
+                    nelec: '32',
+                    nscf: '120',
+                    threshold: '1.0d-9',
+                    nt: '180',
+                    dt: '0.00387',
+                    ae_shape1: 'impulse',
+                    trans_longi: 'lo',
+                    analysis: {
+                        nenergy: '1000',
+                        de: '0.001'
+                    }
+                }
+            },
+            'isolated-lr': {
+                name: 'Isolated Linear Response',
+                theory: 'tddft_response',
+                periodic: 'n',
+                source: 'testsuite 102_C2H2_rt_response',
+                notes: ['Based on SALMON testsuite 102.'],
+                defaults: {
+                    atomic_coordinate_mode: 'cartesian',
+                    latticeVectors: [['16.0', '0.0', '0.0'], ['0.0', '16.0', '0.0'], ['0.0', '0.0', '16.0']],
+                    atoms: [
+                        { element: 'C', x: '0.000000', y: '0.000000', z: '0.599672', type: 1 },
+                        { element: 'H', x: '0.000000', y: '0.000000', z: '1.662257', type: 2 },
+                        { element: 'C', x: '0.000000', y: '0.000000', z: '-0.599672', type: 1 },
+                        { element: 'H', x: '0.000000', y: '0.000000', z: '-1.662257', type: 2 }
+                    ],
+                    pseudo: {
+                        C: { type: 1, izatom: '6', file_pseudo: 'C_rps.dat', lloc_ps: '1', lmax_ps: '1' },
+                        H: { type: 2, izatom: '1', file_pseudo: 'H_rps.dat', lloc_ps: '0', lmax_ps: '0' }
+                    },
+                    rgrid: ['64', '64', '64'],
+                    kgrid: ['1', '1', '1'],
+                    nscf: '200',
+                    threshold: '1.0d-9',
+                    nt: '200',
+                    dt: '1.25d-3',
+                    ae_shape1: 'impulse',
+                    nstate: '5',
+                    nelec: '10',
+                    analysis: {
+                        nenergy: '',
+                        de: ''
+                    }
+                }
+            },
+            'bulk-rt': {
+                name: 'Bulk RT',
+                theory: 'tddft_pulse',
+                periodic: 'y',
+                source: 'testsuite 113_bulk_Si_rt_pulse_dp',
+                notes: ['Based on SALMON testsuite 113.'],
+                defaults: {
+                    atomic_coordinate_mode: 'fractional',
+                    latticeVectors: [['5.43', '0.0', '0.0'], ['0.0', '5.43', '0.0'], ['0.0', '0.0', '5.43']],
+                    atoms: [
+                        { element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.25', z: '0.25', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.0', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.0', y: '0.5', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.5', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.25', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.75', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.75', z: '0.25', type: 1 }
+                    ],
+                    pseudo: {
+                        Si: { type: 1, izatom: '14', file_pseudo: './Si_rps.dat', lloc_ps: '2', lmax_ps: '2' }
+                    },
+                    rgrid: ['12', '12', '12'],
+                    kgrid: ['2', '2', '2'],
+                    nstate: '32',
+                    nelec: '32',
+                    nscf: '120',
+                    threshold: '1.0d-9',
+                    nt: '250',
+                    dt: '0.00387',
+                    ae_shape1: 'Acos2',
+                    I_wcm2_1: '1d14',
+                    omega1: '1.55',
+                    tw1: '10.672',
+                    phi_cep1: '0.0',
+                    analysis: {
+                        projection_option: 'gs'
+                    }
+                }
+            },
+            'isolated-rt': {
+                name: 'Isolated RT',
+                theory: 'tddft_pulse',
+                periodic: 'n',
+                source: 'testsuite 103_C2H2_rt_pulse',
+                notes: ['Based on SALMON testsuite 103.'],
+                defaults: {
+                    atomic_coordinate_mode: 'cartesian',
+                    latticeVectors: [['16.0', '0.0', '0.0'], ['0.0', '16.0', '0.0'], ['0.0', '0.0', '16.0']],
+                    atoms: [
+                        { element: 'C', x: '0.000000', y: '0.000000', z: '0.599672', type: 1 },
+                        { element: 'H', x: '0.000000', y: '0.000000', z: '1.662257', type: 2 },
+                        { element: 'C', x: '0.000000', y: '0.000000', z: '-0.599672', type: 1 },
+                        { element: 'H', x: '0.000000', y: '0.000000', z: '-1.662257', type: 2 }
+                    ],
+                    pseudo: {
+                        C: { type: 1, izatom: '6', file_pseudo: 'C_rps.dat', lloc_ps: '1', lmax_ps: '1' },
+                        H: { type: 2, izatom: '1', file_pseudo: 'H_rps.dat', lloc_ps: '0', lmax_ps: '0' }
+                    },
+                    rgrid: ['64', '64', '64'],
+                    kgrid: ['1', '1', '1'],
+                    nscf: '200',
+                    threshold: '1.0d-9',
+                    nt: '600',
+                    dt: '1.25d-3',
+                    ae_shape1: 'Ecos2',
+                    I_wcm2_1: '1.d11',
+                    omega1: '9.28d0',
+                    tw1: '6.d0',
+                    phi_cep1: '0.75d0',
+                    nstate: '5',
+                    nelec: '10',
+                    analysis: {
+                        projection_option: 'no'
+                    }
+                }
+            },
+            'single-scale': {
+                name: 'Single-scale Maxwell-TDDFT',
+                theory: 'single_scale_maxwell_tddft',
+                periodic: 'y',
+                source: 'testsuite 141_bulk_Si_singlescale',
+                notes: ['Based on SALMON testsuite 141.'],
+                defaults: {
+                    atomic_coordinate_mode: 'fractional',
+                    latticeVectors: [['5.43', '0.0', '0.0'], ['0.0', '5.43', '0.0'], ['0.0', '0.0', '5.43']],
+                    atoms: [
+                        { element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.25', z: '0.25', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.0', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.0', y: '0.5', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.5', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.25', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.75', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.75', z: '0.25', type: 1 }
+                    ],
+                    pseudo: {
+                        Si: { type: 1, izatom: '14', file_pseudo: './Si_rps.dat', lloc_ps: '2', lmax_ps: '2' }
+                    },
+                    rgrid: ['12', '12', '12'],
+                    kgrid: ['2', '2', '2'],
+                    nstate: '32',
+                    nelec: '32',
+                    nscf: '120',
+                    threshold: '1.0d-9',
+                    nt: '250',
+                    dt: '0.00387',
+                    ae_shape1: 'Acos2',
+                    I_wcm2_1: '1d14',
+                    omega1: '1.55',
+                    tw1: '10.672',
+                    fdtddim: '1d',
+                    nx_m: '1',
+                    ny_m: '1',
+                    nz_m: '1',
+                    hx_m: '0.0',
+                    hy_m: '0.0',
+                    hz_m: '0.0'
+                }
+            },
+            maxwell: {
+                name: 'Maxwell-TDDFT',
+                theory: 'single_scale_maxwell_tddft',
+                periodic: 'y',
+                source: 'testsuite 141_bulk_Si_singlescale',
+                notes: ['Alias of the single-scale testsuite template.'],
+                defaults: { aliasOf: 'single-scale' }
+            },
+            'multiscale-testsuite': {
+                name: 'Multiscale Maxwell-TDDFT',
+                theory: 'multi_scale_maxwell_tddft',
+                periodic: 'y',
+                source: 'testsuite 151_bulk_Si_multiscale',
+                notes: ['Based on SALMON testsuite 151.', 'This remains a simplified subset of the full multiscale input.'],
+                defaults: {
+                    atomic_coordinate_mode: 'fractional',
+                    latticeVectors: [['5.43', '0.0', '0.0'], ['0.0', '5.43', '0.0'], ['0.0', '0.0', '5.43']],
+                    atoms: [
+                        { element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.25', z: '0.25', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.0', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.0', y: '0.5', z: '0.5', type: 1 },
+                        { element: 'Si', x: '0.5', y: '0.5', z: '0.0', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.25', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.25', y: '0.75', z: '0.75', type: 1 },
+                        { element: 'Si', x: '0.75', y: '0.75', z: '0.25', type: 1 }
+                    ],
+                    pseudo: {
+                        Si: { type: 1, izatom: '14', file_pseudo: './Si_rps.dat', lloc_ps: '2', lmax_ps: '2' }
+                    },
+                    rgrid: ['12', '12', '12'],
+                    kgrid: ['2', '2', '2'],
+                    nstate: '32',
+                    nelec: '32',
+                    nscf: '120',
+                    threshold: '1.0d-9',
+                    nt: '250',
+                    dt: '0.00387',
+                    ae_shape1: 'Acos2',
+                    I_wcm2_1: '1d14',
+                    omega1: '1.55',
+                    tw1: '10.672',
+                    nx_m: '2',
+                    ny_m: '1',
+                    nz_m: '1',
+                    hx_m: '250',
+                    hy_m: '250',
+                    hz_m: '250',
+                    nxvacl_m: '1000',
+                    nxvacr_m: '1000',
+                    boundary_em_1_1: 'abc',
+                    boundary_em_1_2: 'abc'
+                }
+            },
+            multiscale: {
+                name: 'Multiscale Maxwell-TDDFT',
+                theory: 'multi_scale_maxwell_tddft',
+                periodic: 'y',
+                source: 'testsuite 151_bulk_Si_multiscale',
+                notes: ['Alias of the multiscale testsuite template.'],
+                defaults: { aliasOf: 'multiscale-testsuite' }
+            }
+        };
+
+        // Global state
+        let atoms = [
+            { element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 },
+            { element: 'Si', x: '0.25', y: '0.25', z: '0.25', type: 1 },
+            { element: 'Si', x: '0.5', y: '0.0', z: '0.5', type: 1 },
+            { element: 'Si', x: '0.0', y: '0.5', z: '0.5', type: 1 },
+            { element: 'Si', x: '0.5', y: '0.5', z: '0.0', type: 1 },
+            { element: 'Si', x: '0.75', y: '0.25', z: '0.75', type: 1 },
+            { element: 'Si', x: '0.25', y: '0.75', z: '0.75', type: 1 },
+            { element: 'Si', x: '0.75', y: '0.75', z: '0.25', type: 1 }
+        ];
+
+        let cellInfo = null;
+        let pseudoSettings = {};
+        let lastLatticeLengths = [5.43, 5.43, 5.43];
+        let state = {};
+        let atomicCoordinateMode = 'fractional';
+        let structureViewer = null;
+        let currentTemplateName = '';
+        let currentTemplateSource = 'manual';
+        globalThis.state = state;
+
+        // Utility functions
+        function safeParseFloat(value, defaultValue = 0) {
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? defaultValue : parsed;
+        }
+
+        function safeParseInt(value, defaultValue = 1) {
+            const parsed = parseInt(value);
+            return isNaN(parsed) || parsed <= 0 ? defaultValue : parsed;
+        }
+
+        function isGroundStateTheory(theory) {
+            return theory === 'dft';
+        }
+
+        function isRTTheory(theory) {
+            return theory === 'tddft_response' || theory === 'tddft_pulse' || theory === 'single_scale_maxwell_tddft' || theory === 'multi_scale_maxwell_tddft';
+        }
+
+        function isSingleScaleTheory(theory) {
+            return theory === 'single_scale_maxwell_tddft';
+        }
+
+        function isMultiScaleTheory(theory) {
+            return theory === 'multi_scale_maxwell_tddft';
+        }
+
+        function isLinearResponseTheory(theory) {
+            return theory === 'tddft_response';
+        }
+
+        function vectorMagnitude(vector) {
+            return Math.sqrt(vector.reduce((sum, value) => sum + safeParseFloat(value) ** 2, 0));
+        }
+
+        function getCurrentLatticeLengths() {
+            return [
+                vectorMagnitude([
+                    document.getElementById('al_vec1_x').value,
+                    document.getElementById('al_vec1_y').value,
+                    document.getElementById('al_vec1_z').value
+                ]),
+                vectorMagnitude([
+                    document.getElementById('al_vec2_x').value,
+                    document.getElementById('al_vec2_y').value,
+                    document.getElementById('al_vec2_z').value
+                ]),
+                vectorMagnitude([
+                    document.getElementById('al_vec3_x').value,
+                    document.getElementById('al_vec3_y').value,
+                    document.getElementById('al_vec3_z').value
+                ])
+            ];
+        }
+
+        function syncMeshToLatticeLengths(previousLengths, nextLengths, currentGrid) {
+            return nextLengths.map((nextLength, index) => {
+                const previousLength = Math.max(previousLengths[index] || 0, 1e-6);
+                const currentCount = Math.max(safeParseInt(currentGrid[index], 1), 1);
+                const spacing = previousLength / currentCount;
+                return Math.max(1, Math.round(nextLength / Math.max(spacing, 1e-6)));
+            });
+        }
+
+        function applyRgridValues(grid) {
+            document.getElementById('rgrid_x').value = String(grid[0]);
+            document.getElementById('rgrid_y').value = String(grid[1]);
+            document.getElementById('rgrid_z').value = String(grid[2]);
+        }
+
+        function syncMeshForCurrentLattice(previousLengths) {
+            const nextLengths = getCurrentLatticeLengths();
+            const currentGrid = [
+                document.getElementById('rgrid_x').value,
+                document.getElementById('rgrid_y').value,
+                document.getElementById('rgrid_z').value
+            ];
+            applyRgridValues(syncMeshToLatticeLengths(previousLengths, nextLengths, currentGrid));
+            lastLatticeLengths = nextLengths;
+        }
+
+        function handleLatticeVectorInputChange() {
+            syncMeshForCurrentLattice(lastLatticeLengths);
+            updatePreview();
+        }
+
+        function fracToCartesianFromState(atom, state) {
+            const a1 = state.system.al_vec1.map((value) => safeParseFloat(value, 0));
+            const a2 = state.system.al_vec2.map((value) => safeParseFloat(value, 0));
+            const a3 = state.system.al_vec3.map((value) => safeParseFloat(value, 0));
+            return {
+                x: atom.x * a1[0] + atom.y * a2[0] + atom.z * a3[0],
+                y: atom.x * a1[1] + atom.y * a2[1] + atom.z * a3[1],
+                z: atom.x * a1[2] + atom.y * a2[2] + atom.z * a3[2]
+            };
+        }
+
+        function getAtomicCoordinateMode(state) {
+            return state.atomic_coordinate_mode || 'fractional';
+        }
+
+        function getCartesianAtom(atom, state) {
+            if (getAtomicCoordinateMode(state) === 'cartesian') {
+                return { x: atom.x, y: atom.y, z: atom.z, type: atom.type, element: atom.element };
+            }
+            return fracToCartesianFromState(atom, state);
+        }
+
+        function cartesianToFractionalFromLattice(atom, lattice) {
+            const a1 = lattice[0];
+            const a2 = lattice[1];
+            const a3 = lattice[2];
+            const det =
+                a1[0] * (a2[1] * a3[2] - a2[2] * a3[1]) -
+                a2[0] * (a1[1] * a3[2] - a1[2] * a3[1]) +
+                a3[0] * (a1[1] * a2[2] - a1[2] * a2[1]);
+            if (Math.abs(det) < 1e-12) {
+                return { x: atom.x, y: atom.y, z: atom.z, type: atom.type, element: atom.element };
+            }
+            const inv = [
+                [
+                    (a2[1] * a3[2] - a2[2] * a3[1]) / det,
+                    (a3[1] * a1[2] - a3[2] * a1[1]) / det,
+                    (a1[1] * a2[2] - a1[2] * a2[1]) / det
+                ],
+                [
+                    (a2[2] * a3[0] - a2[0] * a3[2]) / det,
+                    (a3[2] * a1[0] - a3[0] * a1[2]) / det,
+                    (a1[2] * a2[0] - a1[0] * a2[2]) / det
+                ],
+                [
+                    (a2[0] * a3[1] - a2[1] * a3[0]) / det,
+                    (a3[0] * a1[1] - a3[1] * a1[0]) / det,
+                    (a1[0] * a2[1] - a1[1] * a2[0]) / det
+                ]
+            ];
+            const x = safeParseFloat(atom.x, 0);
+            const y = safeParseFloat(atom.y, 0);
+            const z = safeParseFloat(atom.z, 0);
+            return {
+                x: (inv[0][0] * x + inv[0][1] * y + inv[0][2] * z).toFixed(6),
+                y: (inv[1][0] * x + inv[1][1] * y + inv[1][2] * z).toFixed(6),
+                z: (inv[2][0] * x + inv[2][1] * y + inv[2][2] * z).toFixed(6),
+                type: atom.type,
+                element: atom.element
+            };
+        }
+
+        function convertAtomsToFractionalForCurrentLattice() {
+            const lattice = [
+                [
+                    safeParseFloat(document.getElementById('al_vec1_x').value, 0),
+                    safeParseFloat(document.getElementById('al_vec1_y').value, 0),
+                    safeParseFloat(document.getElementById('al_vec1_z').value, 0)
+                ],
+                [
+                    safeParseFloat(document.getElementById('al_vec2_x').value, 0),
+                    safeParseFloat(document.getElementById('al_vec2_y').value, 0),
+                    safeParseFloat(document.getElementById('al_vec2_z').value, 0)
+                ],
+                [
+                    safeParseFloat(document.getElementById('al_vec3_x').value, 0),
+                    safeParseFloat(document.getElementById('al_vec3_y').value, 0),
+                    safeParseFloat(document.getElementById('al_vec3_z').value, 0)
+                ]
+            ];
+            atoms = atoms.map((atom) => cartesianToFractionalFromLattice(atom, lattice));
+            updateAtomsList();
+        }
+
+        function getOutputAtom(atom, state) {
+            if (state.system.yn_periodic === 'y') {
+                return atom;
+            }
+            return getCartesianAtom(atom, state);
+        }
+
+        function initializeStructureViewer() {
+            const container = document.getElementById('structureViewer');
+            const status = document.getElementById('structureViewerStatus');
+            if (!container) {
+                return null;
+            }
+            if (structureViewer) {
+                return structureViewer;
+            }
+            if (!globalThis.$3Dmol || typeof globalThis.$3Dmol.createViewer !== 'function') {
+                if (status) {
+                    status.textContent = '3D viewer library is not available.';
+                }
+                return null;
+            }
+            structureViewer = globalThis.$3Dmol.createViewer(container, { backgroundColor: 'white' });
+            const handleViewerWheel = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof event.stopImmediatePropagation === 'function') {
+                    event.stopImmediatePropagation();
+                }
+                const rawDelta = typeof event.deltaY === 'number'
+                    ? event.deltaY
+                    : (typeof event.wheelDelta === 'number'
+                        ? -event.wheelDelta
+                        : (typeof event.detail === 'number' ? event.detail : 0));
+                const zoomFactor = rawDelta < 0 ? 1.15 : 0.87;
+                if (typeof structureViewer.zoom === 'function') {
+                    structureViewer.zoom(zoomFactor);
+                }
+                if (typeof structureViewer.render === 'function') {
+                    structureViewer.render();
+                }
+            };
+            container.addEventListener('wheel', handleViewerWheel, { passive: false, capture: true });
+            container.addEventListener('mousewheel', handleViewerWheel, { passive: false, capture: true });
+            if (status) {
+                status.textContent = 'Drag to rotate and scroll to zoom.';
+            }
+            return structureViewer;
+        }
+
+        function clearStructureViewer() {
+            if (!structureViewer) {
+                return;
+            }
+            if (typeof structureViewer.removeAllModels === 'function') {
+                structureViewer.removeAllModels();
+            }
+            if (typeof structureViewer.removeAllShapes === 'function') {
+                structureViewer.removeAllShapes();
+            }
+            if (typeof structureViewer.removeAllLabels === 'function') {
+                structureViewer.removeAllLabels();
+            }
+        }
+
+        function getElementColor(element) {
+            const colors = {
+                H: '#ffffff',
+                He: '#d9ffff',
+                Li: '#cc80ff',
+                Be: '#c2ff00',
+                B: '#ffb5b5',
+                C: '#909090',
+                N: '#3050f8',
+                O: '#ff0d0d',
+                F: '#90e050',
+                Ne: '#b3e3f5',
+                Na: '#ab5cf2',
+                Mg: '#8aff00',
+                Al: '#bfa6a6',
+                Si: '#f0c8a0',
+                P: '#ff8000',
+                S: '#ffff30',
+                Cl: '#1ff01f',
+                Ar: '#80d1e3',
+                K: '#8f40d4',
+                Ca: '#3dff00',
+                Ti: '#bfc2c7',
+                Cr: '#8a99c7',
+                Mn: '#9c7ac7',
+                Fe: '#e06633',
+                Co: '#f090a0',
+                Ni: '#50d050',
+                Cu: '#c88033',
+                Zn: '#7d80b0',
+                Ga: '#c28f8f',
+                Ge: '#668f8f',
+                As: '#bd80e3',
+                Se: '#ffa100',
+                Br: '#a62929',
+                Kr: '#5cb8d1'
+            };
+            return colors[element] || '#6b7280';
+        }
+
+        function getElementRadius(element) {
+            return 0.46;
+        }
+
+        function getDisplayAtoms(activeState) {
+            return activeState.atoms.map((atom) => {
+                const coord = getCartesianAtom(atom, activeState);
+                return {
+                    element: atom.element,
+                    x: safeParseFloat(coord.x, 0),
+                    y: safeParseFloat(coord.y, 0),
+                    z: safeParseFloat(coord.z, 0),
+                    type: atom.type
+                };
+            });
+        }
+
+        function getCellEdges(activeState) {
+            if (activeState.system.yn_periodic !== 'y') {
+                return [];
+            }
+            const a1 = activeState.cell.al_vec1;
+            const a2 = activeState.cell.al_vec2;
+            const a3 = activeState.cell.al_vec3;
+            const add = (u, v) => [u[0] + v[0], u[1] + v[1], u[2] + v[2]];
+            const origin = [0, 0, 0];
+            const p1 = a1;
+            const p2 = a2;
+            const p3 = a3;
+            const p12 = add(a1, a2);
+            const p13 = add(a1, a3);
+            const p23 = add(a2, a3);
+            const p123 = add(p12, a3);
+            return [
+                [origin, p1], [origin, p2], [origin, p3],
+                [p1, p12], [p1, p13],
+                [p2, p12], [p2, p23],
+                [p3, p13], [p3, p23],
+                [p12, p123], [p13, p123], [p23, p123]
+            ];
+        }
+
+        function getBondSegments(activeState) {
+            const displayAtoms = getDisplayAtoms(activeState);
+            const covalentRadii = {
+                H: 0.31,
+                C: 0.76,
+                N: 0.71,
+                O: 0.66,
+                Si: 1.11
+            };
+            const bonds = [];
+            for (let i = 0; i < displayAtoms.length; i += 1) {
+                for (let j = i + 1; j < displayAtoms.length; j += 1) {
+                    const a = displayAtoms[i];
+                    const b = displayAtoms[j];
+                    const dx = a.x - b.x;
+                    const dy = a.y - b.y;
+                    const dz = a.z - b.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    const cutoff = (covalentRadii[a.element] || 0.8) + (covalentRadii[b.element] || 0.8) + 0.45;
+                    if (distance > 0.1 && distance <= cutoff) {
+                        bonds.push({
+                            start: a,
+                            end: b,
+                            distance
+                        });
+                    }
+                }
+            }
+            return bonds;
+        }
+
+        function renderStructureViewer(activeState) {
+            const viewer = initializeStructureViewer();
+            const status = document.getElementById('structureViewerStatus');
+            if (!viewer) {
+                return;
+            }
+            clearStructureViewer();
+            const displayAtoms = getDisplayAtoms(activeState);
+            displayAtoms.forEach((atom) => {
+                if (typeof viewer.addSphere === 'function') {
+                    viewer.addSphere({
+                        center: { x: atom.x, y: atom.y, z: atom.z },
+                        radius: getElementRadius(atom.element),
+                        color: getElementColor(atom.element)
+                    });
+                }
+            });
+            getBondSegments(activeState).forEach((bond) => {
+                if (typeof viewer.addCylinder === 'function') {
+                    viewer.addCylinder({
+                        start: { x: bond.start.x, y: bond.start.y, z: bond.start.z },
+                        end: { x: bond.end.x, y: bond.end.y, z: bond.end.z },
+                        radius: 0.16,
+                        color: '#6b7280'
+                    });
+                } else if (typeof viewer.addLine === 'function') {
+                    viewer.addLine({
+                        start: { x: bond.start.x, y: bond.start.y, z: bond.start.z },
+                        end: { x: bond.end.x, y: bond.end.y, z: bond.end.z },
+                        color: '#6b7280',
+                        dashed: false
+                    });
+                }
+            });
+            getCellEdges(activeState).forEach(([start, end]) => {
+                if (typeof viewer.addLine === 'function') {
+                    viewer.addLine({
+                        start: { x: start[0], y: start[1], z: start[2] },
+                        end: { x: end[0], y: end[1], z: end[2] },
+                        color: '#2563eb',
+                        dashed: false
+                    });
+                }
+            });
+            if (typeof viewer.resize === 'function') {
+                viewer.resize();
+            }
+            const viewerCanvas = document.getElementById('structureViewer').querySelector?.('canvas');
+            if (viewerCanvas && !viewerCanvas.dataset.zoomBound) {
+                const redispatchWheel = (event) => {
+                    const forwarded = new WheelEvent('wheel', {
+                        deltaY: event.deltaY,
+                        bubbles: true,
+                        cancelable: true
+                    });
+                    document.getElementById('structureViewer').dispatchEvent(forwarded);
+                    event.preventDefault();
+                };
+                viewerCanvas.addEventListener('wheel', redispatchWheel, { passive: false, capture: true });
+                viewerCanvas.addEventListener('mousewheel', redispatchWheel, { passive: false, capture: true });
+                viewerCanvas.dataset.zoomBound = '1';
+            }
+            if (typeof viewer.zoomTo === 'function') {
+                viewer.zoomTo();
+            }
+            if (typeof viewer.render === 'function') {
+                viewer.render();
+            }
+            if (status) {
+                status.textContent = activeState.system.yn_periodic === 'y'
+                    ? 'Periodic view: atoms and unit-cell edges.'
+                    : 'Isolated view: atoms only.';
+            }
+        }
+
+        function calculateElectronInfo(atomsArray) {
+            const totalElectrons = atomsArray.reduce((sum, atom) => {
+                return sum + (ELEMENT_TO_VALENCE_ELECTRONS[atom.element] || 4);
+            }, 0);
+            
+            return {
+                nelec: totalElectrons,
+                nstate: Math.max(totalElectrons, Math.ceil(totalElectrons * 1)),
+                temperature_k: -1.0
+            };
+        }
+
+        function extractElementTypes(atomsArray) {
+            const uniqueElements = [...new Set(atomsArray.map(atom => atom.element))];
+            return {
+                nelem: uniqueElements.length.toString(),
+                uniqueElements
+            };
+        }
+
+        function guessLmaxPs(element) {
+            const z = ELEMENT_TO_ATOMIC_NUMBER[element] || 6;
+            if (z <= 2) return '0';
+            if (z <= 10) return '1';
+            if (z <= 18) return '2';
+            return '3';
+        }
+
+        function defaultPseudoSetting(element) {
+            const z = ELEMENT_TO_ATOMIC_NUMBER[element] || 6;
+            return {
+                type: '1',
+                izatom: z.toString(),
+                file_pseudo: `REPLACE_WITH_${element}_PSEUDO`,
+                lloc_ps: z <= 2 ? '0' : '2',
+                lmax_ps: guessLmaxPs(element)
+            };
+        }
+
+        function syncPseudoSettings() {
+            const { uniqueElements } = extractElementTypes(atoms);
+            const nextSettings = {};
+            uniqueElements.forEach((element, index) => {
+                const current = pseudoSettings[element] || defaultPseudoSetting(element);
+                nextSettings[element] = {
+                    ...current,
+                    type: current.type || (index + 1).toString()
+                };
+            });
+            pseudoSettings = nextSettings;
+            normalizePseudoTypes();
+        }
+
+        function normalizePseudoTypes() {
+            const entries = Object.entries(pseudoSettings).sort((a, b) => {
+                return safeParseInt(a[1].type, Number.MAX_SAFE_INTEGER) - safeParseInt(b[1].type, Number.MAX_SAFE_INTEGER);
+            });
+            const used = new Set();
+            entries.forEach(([element, pseudo], index) => {
+                let typeValue = safeParseInt(pseudo.type, index + 1);
+                while (used.has(typeValue)) {
+                    typeValue += 1;
+                }
+                used.add(typeValue);
+                pseudoSettings[element].type = typeValue.toString();
+            });
+        }
+
+        function getElementTypeMap() {
+            syncPseudoSettings();
+            const elementTypes = {};
+            Object.entries(pseudoSettings).forEach(([element, pseudo]) => {
+                elementTypes[element] = safeParseInt(pseudo.type, 1);
+            });
+            return elementTypes;
+        }
+
+        function updateAtomsWithTypes(atomsArray, elementTypes) {
+            return atomsArray.map(atom => ({
+                ...atom,
+                type: elementTypes[atom.element] || 1
+            }));
+        }
+
+        function calculateLatticeVectors(a, b, c, alpha, beta, gamma) {
+            const degToRad = (degrees) => degrees * Math.PI / 180;
+            
+            const alphaRad = degToRad(alpha);
+            const betaRad = degToRad(beta);
+            const gammaRad = degToRad(gamma);
+            
+            const a1 = [a, 0, 0];
+            const a2 = [b * Math.cos(gammaRad), b * Math.sin(gammaRad), 0];
+            
+            const cosAlpha = Math.cos(alphaRad);
+            const cosBeta = Math.cos(betaRad);
+            const cosGamma = Math.cos(gammaRad);
+            const sinGamma = Math.sin(gammaRad);
+            
+            const volume = a * b * c * Math.sqrt(
+                1 + 2 * cosAlpha * cosBeta * cosGamma - 
+                cosAlpha * cosAlpha - cosBeta * cosBeta - cosGamma * cosGamma
+            );
+            
+            const a3 = [
+                c * cosBeta,
+                c * (cosAlpha - cosBeta * cosGamma) / sinGamma,
+                volume / (a * b * sinGamma)
+            ];
+            
+            return {
+                al_vec1: a1.map(x => x.toFixed(6)),
+                al_vec2: a2.map(x => x.toFixed(6)),
+                al_vec3: a3.map(x => x.toFixed(6)),
+                volume: volume
+            };
+        }
+
+        function parseCIF(content) {
+            const lines = content.split('\n').map(line => line.trim()).filter(line => line);
+            const atomsArray = [];
+            let a = 5.43, b = 5.43, c = 5.43;
+            let alpha = 90, beta = 90, gamma = 90;
+            
+            let inAtomLoop = false;
+            let atomColumns = {};
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                
+                if (line.startsWith('_cell_length_a')) {
+                    const match = line.match(/([\d.]+)/);
+                    if (match) a = parseFloat(match[1]);
+                } else if (line.startsWith('_cell_length_b')) {
+                    const match = line.match(/([\d.]+)/);
+                    if (match) b = parseFloat(match[1]);
+                } else if (line.startsWith('_cell_length_c')) {
+                    const match = line.match(/([\d.]+)/);
+                    if (match) c = parseFloat(match[1]);
+                } else if (line.startsWith('_cell_angle_alpha')) {
+                    const match = line.match(/([\d.]+)/);
+                    if (match) alpha = parseFloat(match[1]);
+                } else if (line.startsWith('_cell_angle_beta')) {
+                    const match = line.match(/([\d.]+)/);
+                    if (match) beta = parseFloat(match[1]);
+                } else if (line.startsWith('_cell_angle_gamma')) {
+                    const match = line.match(/([\d.]+)/);
+                    if (match) gamma = parseFloat(match[1]);
+                }
+                
+                if (line.startsWith('loop_')) {
+                    inAtomLoop = false;
+                    atomColumns = {};
+                    
+                    let j = i + 1;
+                    let colIndex = 0;
+                    while (j < lines.length && lines[j].startsWith('_atom_site_')) {
+                        const label = lines[j].replace('_atom_site_', '');
+                        atomColumns[label] = colIndex++;
+                        j++;
+                    }
+                    
+                    if (Object.keys(atomColumns).length > 0) {
+                        inAtomLoop = true;
+                        i = j - 1;
+                    }
+                } else if (inAtomLoop && !line.startsWith('_') && !line.startsWith('loop_') && line.length > 0) {
+                    const parts = line.split(/\s+/);
+                    if (parts.length >= Object.keys(atomColumns).length) {
+                        if (atomColumns.fract_x === undefined || atomColumns.fract_y === undefined || atomColumns.fract_z === undefined) {
+                            throw new Error('CIF file must contain _atom_site_fract_x/_y/_z columns');
+                        }
+
+                        const element = atomColumns.type_symbol !== undefined 
+                            ? parts[atomColumns.type_symbol].replace(/[0-9+\-]/g, '')
+                            : (atomColumns.label !== undefined 
+                                ? parts[atomColumns.label].replace(/[0-9+\-]/g, '')
+                                : parts[0].replace(/[0-9+\-]/g, ''));
+                        
+                        const x = parseFloat(parts[atomColumns.fract_x]);
+                        const y = parseFloat(parts[atomColumns.fract_y]);
+                        const z = parseFloat(parts[atomColumns.fract_z]);
+                        
+                        if (element && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
+                            atomsArray.push({
+                                element: element,
+                                x: x.toFixed(6),
+                                y: y.toFixed(6),
+                                z: z.toFixed(6),
+                                type: 1
+                            });
+                        }
+                    }
+                }
+            }
+            
+            const latticeVectors = calculateLatticeVectors(a, b, c, alpha, beta, gamma);
+            
+            return {
+                cellParams: { a, b, c, alpha, beta, gamma },
+                latticeVectors: latticeVectors,
+                atoms: atomsArray
+            };
+        }
+
+        function calculateCutoffEnergy() {
+            try {
+                const activeState = state && state.cell ? state : normalizeState(readFormState());
+                const a1_mag = vectorMagnitude(activeState.cell.al_vec1);
+                const a2_mag = vectorMagnitude(activeState.cell.al_vec2);
+                const a3_mag = vectorMagnitude(activeState.cell.al_vec3);
+                
+                if (a1_mag === 0 || a2_mag === 0 || a3_mag === 0) {
+                    return null;
+                }
+                
+                const [nx, ny, nz] = activeState.grid;
+                
+                const dx = a1_mag / nx;
+                const dy = a2_mag / ny;
+                const dz = a3_mag / nz;
+                
+                const cutoff_hartree_a = (2*Math.PI*0.529/(2*dx))**2 / 2;
+                const cutoff_hartree_b = (2*Math.PI*0.529/(2*dy))**2 / 2;
+                const cutoff_hartree_c = (2*Math.PI*0.529/(2*dz))**2 / 2;
+                const cutoff_ev_a = cutoff_hartree_a * 27.211386245988;
+                const cutoff_ev_b = cutoff_hartree_b * 27.211386245988;
+                const cutoff_ev_c = cutoff_hartree_c * 27.211386245988;
+                
+                return {
+                    cutoff_ev_a: cutoff_ev_a,
+                    cutoff_ev_b: cutoff_ev_b,
+                    cutoff_ev_c: cutoff_ev_c,
+                    cutoff_hartree_a: cutoff_hartree_a,
+                    cutoff_hartree_b: cutoff_hartree_b,
+                    cutoff_hartree_c: cutoff_hartree_c,
+                    grid_spacing: { dx, dy, dz }
+                };
+            } catch (error) {
+                console.error('Cutoff calculation error:', error);
+                return null;
+            }
+        }
+
+        function calculateWavefunctionMemory() {
+            return estimateCost(state && state.cell ? state : readForm());
+        }
+
+        // Resource estimates stay approximate; keep them side-effect free and state based.
+        function estimateResources(state) {
+            const nstate = safeParseInt(state.system.nstate, 1);
+            const [nx, ny, nz] = state.grid.map((value) => safeParseInt(value, 1));
+            const [kx, ky, kz] = state.kgrid.map((value) => safeParseInt(value, 1));
+            const rgrid = nx * ny * nz;
+            const kgrid = kx * ky * kz;
+            const spin = 1;
+            const bytesPerElement = 16;
+            const totalElements = nstate * rgrid * kgrid * spin;
+            const totalBytes = totalElements * bytesPerElement;
+            const rtFactor = isRTTheory(state.calculation.theory) ? Math.max(safeParseInt(state.rt.nt, 1), 1) : 1;
+            const costIndex = totalElements * rtFactor;
+            
+            const formatBytes = (bytes) => {
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                if (bytes === 0) return '0 B';
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
+            };
+            
+            return {
+                totalElements,
+                totalBytes,
+                formatted: formatBytes(totalBytes),
+                costIndex,
+                groundStateCost: totalElements,
+                rtCost: costIndex,
+                breakdown: { nstate, rgrid, kgrid, spin }
+            };
+        }
+
+        function estimateCost(state) {
+            return estimateResources(state);
+        }
+
+        // DOM manipulation functions
+        function updateLatticeVectors() {
+            const container = document.getElementById('latticeVectors');
+            const vectors = ['al_vec1', 'al_vec2', 'al_vec3'];
+            const defaultValues = [
+                ['5.43', '0.0', '0.0'],
+                ['0.0', '5.43', '0.0'],
+                ['0.0', '0.0', '5.43']
+            ];
+            
+            container.innerHTML = vectors.map((vec, i) => `
+                <div class="mb-4">
+                    <label class="label">${vec}</label>
+                    <div class="grid grid-3 gap-2">
+                        <input type="text" id="${vec}_x" class="input input-small" placeholder="X" value="${defaultValues[i][0]}" onchange="handleLatticeVectorInputChange()">
+                        <input type="text" id="${vec}_y" class="input input-small" placeholder="Y" value="${defaultValues[i][1]}" onchange="handleLatticeVectorInputChange()">
+                        <input type="text" id="${vec}_z" class="input input-small" placeholder="Z" value="${defaultValues[i][2]}" onchange="handleLatticeVectorInputChange()">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAnalysisFields() {
+            const container = document.getElementById('analysisFields');
+            container.innerHTML = `
+                <div class="grid grid-2 gap-4">
+                    ${ANALYSIS_FIELDS.map((field) => {
+                        if (field.kind === 'select') {
+                            return `
+                                <div>
+                                    <label class="label">${field.label}</label>
+                                    <select id="${field.id}" class="select">
+                                        ${field.options.map((option) => `<option value="${option}" ${option === field.defaultValue ? 'selected' : ''}>${option}</option>`).join('')}
+                                    </select>
+                                </div>
+                            `;
+                        }
+                        return `
+                            <div>
+                                <label class="label">${field.label}</label>
+                                <input type="text" id="${field.id}" class="input" value="${field.defaultValue}" placeholder="${field.label}">
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function updateAtomsList() {
+            const container = document.getElementById('atomsList');
+            container.innerHTML = atoms.map((atom, i) => `
+                <div class="atom-card">
+                    <div class="atom-header">
+                        <span class="font-medium">Atom ${i + 1}</span>
+                        ${atoms.length > 1 ? `<button class="button button-danger button-small" onclick="removeAtom(${i})">Remove</button>` : ''}
+                    </div>
+                    <div class="grid grid-5 gap-2">
+                        <select onchange="updateAtomElement(${i}, this.value)" class="select">
+                            ${Object.keys(ELEMENT_TO_ATOMIC_NUMBER).map(el => 
+                                `<option value="${el}" ${atom.element === el ? 'selected' : ''}>${el}</option>`
+                            ).join('')}
+                        </select>
+                        <input type="text" value="${atom.x}" onchange="updateAtomCoord(${i}, 'x', this.value)" class="input" placeholder="X">
+                        <input type="text" value="${atom.y}" onchange="updateAtomCoord(${i}, 'y', this.value)" class="input" placeholder="Y">
+                        <input type="text" value="${atom.z}" onchange="updateAtomCoord(${i}, 'z', this.value)" class="input" placeholder="Z">
+                        <input type="text" value="${atom.type}" readonly class="input" style="background-color: #f3f4f6;" placeholder="Type">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updatePseudoList() {
+            syncPseudoSettings();
+            const container = document.getElementById('pseudoList');
+            const { uniqueElements } = extractElementTypes(atoms);
+            container.innerHTML = uniqueElements.map((element) => {
+                const pseudo = pseudoSettings[element];
+                return `
+                    <div class="atom-card">
+                        <div class="atom-header">
+                            <span class="font-medium">${element}</span>
+                        </div>
+                        <div class="grid grid-2 gap-2 mb-2">
+                            <div>
+                                <label class="label">type</label>
+                                <input type="text" value="${pseudo.type}" onchange="updatePseudoField('${element}', 'type', this.value)" class="input">
+                            </div>
+                            <div>
+                                <label class="label">izatom</label>
+                                <input type="text" value="${pseudo.izatom}" onchange="updatePseudoField('${element}', 'izatom', this.value)" class="input">
+                            </div>
+                        </div>
+                        <div class="grid grid-1 gap-2 mb-2">
+                            <div>
+                                <label class="label">file_pseudo</label>
+                                <input type="text" value="${pseudo.file_pseudo}" onchange="updatePseudoField('${element}', 'file_pseudo', this.value)" class="input" placeholder="e.g. 14-Si.LDA.fhi">
+                            </div>
+                        </div>
+                        <div class="grid grid-2 gap-2">
+                            <div>
+                                <label class="label">lloc_ps</label>
+                                <input type="text" value="${pseudo.lloc_ps}" onchange="updatePseudoField('${element}', 'lloc_ps', this.value)" class="input">
+                            </div>
+                            <div>
+                                <label class="label">lmax_ps</label>
+                                <input type="text" value="${pseudo.lmax_ps}" onchange="updatePseudoField('${element}', 'lmax_ps', this.value)" class="input">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updatePseudoField(element, field, value) {
+            if (!pseudoSettings[element]) {
+                pseudoSettings[element] = defaultPseudoSetting(element);
+            }
+            pseudoSettings[element][field] = value;
+            if (field === 'type') {
+                normalizePseudoTypes();
+                updateAtomsList();
+                updatePseudoList();
+            }
+            updatePreview();
+        }
+
+        function updateCellInfo() {
+            const container = document.getElementById('cellInfo');
+            if (cellInfo) {
+                container.className = 'info-box info-box-info mb-4';
+                container.innerHTML = `
+                    <h3 class="font-medium mb-2">Cell Parameters</h3>
+                    <div class="grid grid-2 gap-2 text-sm">
+                        <div>a = ${cellInfo.a.toFixed(3)} Å</div>
+                        <div>α = ${cellInfo.alpha.toFixed(1)}°</div>
+                        <div>b = ${cellInfo.b.toFixed(3)} Å</div>
+                        <div>β = ${cellInfo.beta.toFixed(1)}°</div>
+                        <div>c = ${cellInfo.c.toFixed(3)} Å</div>
+                        <div>γ = ${cellInfo.gamma.toFixed(1)}°</div>
+                    </div>
+                    ${cellInfo.volume ? `<div class="mt-2 text-sm">Volume = ${cellInfo.volume.toFixed(2)} Å³</div>` : ''}
+                `;
+            } else {
+                container.className = 'hidden';
+            }
+        }
+
+        function updateCutoffInfo(activeState) {
+            const container = document.getElementById('cutoffInfo');
+            const previousState = state;
+            if (activeState) {
+                state = activeState;
+            }
+            const cutoffInfo = calculateCutoffEnergy();
+            state = previousState;
+            
+            if (cutoffInfo) {
+                container.innerHTML = `
+                    <div class="info-box info-box-info">
+                        <h3 class="font-medium mb-2">Plane-wave Cutoff Estimate</h3>
+                        <div class="text-sm space-y-2">
+                            <div>
+                                <span class="font-medium">Cutoff energy (a): </span>
+                                <span class="font-bold" style="color: #6b21a8;">${cutoffInfo.cutoff_ev_a.toFixed(1)} eV</span>
+                                <span class="text-xs" style="color: #8b5cf6; margin-left: 8px;">
+                                    (${cutoffInfo.grid_spacing.dx.toFixed(3)} Å, ${cutoffInfo.cutoff_hartree_a.toFixed(3)} Hartree)
+                                </span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Cutoff energy (b): </span>
+                                <span class="font-bold" style="color: #6b21a8;">${cutoffInfo.cutoff_ev_b.toFixed(1)} eV</span>
+                                <span class="text-xs" style="color: #8b5cf6; margin-left: 8px;">
+                                    (${cutoffInfo.grid_spacing.dy.toFixed(3)} Å, ${cutoffInfo.cutoff_hartree_b.toFixed(3)} Hartree)
+                                </span>
+                            </div>
+                            <div>
+                                <span class="font-medium">Cutoff energy (c): </span>
+                                <span class="font-bold" style="color: #6b21a8;">${cutoffInfo.cutoff_ev_c.toFixed(1)} eV</span>
+                                <span class="text-xs" style="color: #8b5cf6; margin-left: 8px;">
+                                    (${cutoffInfo.grid_spacing.dz.toFixed(3)} Å, ${cutoffInfo.cutoff_hartree_c.toFixed(3)} Hartree)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '';
+            }
+        }
+
+        function updateMemoryInfo(memoryInfo) {
+            const container = document.getElementById('memoryInfo');
+            const resourceInfo = memoryInfo || calculateWavefunctionMemory();
+            
+            let warningHtml = '';
+            if (resourceInfo.totalBytes > 1e9) {
+                warningHtml = `
+                    <div class="info-box info-box-warning mt-3 flex flex-center gap-2">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <strong>Warning:</strong> Large memory requirement (&gt;1GB). Consider optimizing parameters.
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px;">
+                    <h3 class="font-medium mb-2">Wavefunction-only rough estimate</h3>
+                    <div class="font-bold mb-2" style="font-size: 18px; color: #be185d;">${resourceInfo.formatted}</div>
+                        <div class="text-sm" style="color: #6b7280;">
+                            <div>Total elements: ${resourceInfo.totalElements.toLocaleString()}</div>
+                            <div>Formula: nstate × rgrid × kgrid × spin</div>
+                            <div>= ${resourceInfo.breakdown.nstate} × ${resourceInfo.breakdown.rgrid.toLocaleString()} × ${resourceInfo.breakdown.kgrid} × ${resourceInfo.breakdown.spin}</div>
+                            <div class="mt-2">Ground-state relative cost: ${resourceInfo.groundStateCost.toLocaleString()}</div>
+                            <div>RT relative cost: ${resourceInfo.rtCost.toLocaleString()}</div>
+                            <div class="mt-2">Density, potentials, work arrays, and MPI duplication are not included.</div>
+                        </div>
+                    </div>
+                ${warningHtml}
+            `;
+        }
+
+        function updatePseudoWarning() {
+            const container = document.getElementById('pseudoWarning');
+            const hasPlaceholder = Object.values(pseudoSettings).some((pseudo) => {
+                return (pseudo.file_pseudo || '').includes('REPLACE_WITH_');
+            });
+            container.innerHTML = hasPlaceholder
+                ? `<div class="info-box info-box-warning">` +
+                  `Pseudo filenames still contain placeholders. Edit \`file_pseudo\` before running SALMON.` +
+                  `</div>`
+                : '';
+        }
+
+        function updateTheorySections() {
+            const theory = document.getElementById('theory').value;
+            const rtVisible = isRTTheory(theory);
+            const singleScaleVisible = isSingleScaleTheory(theory) || isMultiScaleTheory(theory);
+
+            document.getElementById('rtSection').classList.toggle('hidden', !rtVisible);
+            document.getElementById('analysisSection').classList.toggle('hidden', false);
+            document.getElementById('singleScaleSection').classList.toggle('hidden', !singleScaleVisible);
+        }
+
+        // Canonical state is the internal source of truth for preview, viewer, validation, and export.
+        function buildCanonicalState() {
+            const typeInfo = extractElementTypes(atoms);
+            syncPseudoSettings();
+            const elementTypes = getElementTypeMap();
+            const atomsWithTypes = updateAtomsWithTypes(atoms, elementTypes);
+            const pseudoEntries = Object.entries(pseudoSettings)
+                .sort((a, b) => safeParseInt(a[1].type, 1) - safeParseInt(b[1].type, 1))
+                .map(([element, pseudo]) => ({
+                    element,
+                    type: safeParseInt(pseudo.type, 1),
+                    izatom: pseudo.izatom,
+                    file_pseudo: pseudo.file_pseudo,
+                    lloc_ps: pseudo.lloc_ps,
+                    lmax_ps: pseudo.lmax_ps
+                }));
+
+            return {
+                metadata: {
+                    schema_version: '1.0',
+                    app_version: '1.0',
+                    template_name: currentTemplateName,
+                    source: currentTemplateSource
+                },
+                calculation: {
+                    theory: document.getElementById('theory').value,
+                    xc: document.getElementById('xc').value,
+                    unit_system: 'A_eV_fs'
+                },
+                control: {
+                    sysname: 'salmon_gs'
+                },
+                parallel: {
+                    nproc_k: document.getElementById('nproc_k').value,
+                    nproc_ob: document.getElementById('nproc_ob').value,
+                    nproc_rgrid: [
+                        document.getElementById('nproc_rgrid_x').value,
+                        document.getElementById('nproc_rgrid_y').value,
+                        document.getElementById('nproc_rgrid_z').value
+                    ]
+                },
+                system: {
+                    yn_periodic: document.getElementById('yn_periodic').value,
+                    al_vec1: [
+                        document.getElementById('al_vec1_x').value,
+                        document.getElementById('al_vec1_y').value,
+                        document.getElementById('al_vec1_z').value
+                    ],
+                    al_vec2: [
+                        document.getElementById('al_vec2_x').value,
+                        document.getElementById('al_vec2_y').value,
+                        document.getElementById('al_vec2_z').value
+                    ],
+                    al_vec3: [
+                        document.getElementById('al_vec3_x').value,
+                        document.getElementById('al_vec3_y').value,
+                        document.getElementById('al_vec3_z').value
+                    ],
+                    nelem: typeInfo.nelem,
+                    natom: atomsWithTypes.length,
+                    nelec: document.getElementById('nelec').value,
+                    nstate: document.getElementById('nstate').value,
+                    temperature_k: document.getElementById('temperature_k').value || '-1.0',
+                    atomic_coordinate_mode: atomicCoordinateMode
+                },
+                pseudo: pseudoEntries,
+                grid: {
+                    num_rgrid: [
+                        document.getElementById('rgrid_x').value,
+                        document.getElementById('rgrid_y').value,
+                        document.getElementById('rgrid_z').value
+                    ],
+                    num_kgrid: [
+                        document.getElementById('kgrid_x').value,
+                        document.getElementById('kgrid_y').value,
+                        document.getElementById('kgrid_z').value
+                    ]
+                },
+                scf: {
+                    nscf: document.getElementById('nscf').value,
+                    threshold: document.getElementById('threshold').value
+                },
+                atoms: atomsWithTypes.map((atom) => ({ ...atom })),
+                rt: {
+                    nt: document.getElementById('nt').value,
+                    dt: document.getElementById('dt').value,
+                    propagator: document.getElementById('propagator').value,
+                    trans_longi: document.getElementById('trans_longi').value,
+                    ae_shape1: document.getElementById('ae_shape1').value,
+                    I_wcm2_1: document.getElementById('I_wcm2_1').value,
+                    omega1: document.getElementById('omega1').value,
+                    tw1: document.getElementById('tw1').value,
+                    phi_cep1: document.getElementById('phi_cep1').value,
+                    yn_out_dns: document.getElementById('yn_out_dns').value
+                },
+                analysis: Object.fromEntries(ANALYSIS_FIELDS.map((field) => [field.id, document.getElementById(field.id).value])),
+                maxwell: {
+                    method_singlescale: document.getElementById('method_singlescale').value,
+                    fdtddim: document.getElementById('fdtddim').value,
+                    nx_m: document.getElementById('nx_m').value,
+                    ny_m: document.getElementById('ny_m').value,
+                    nz_m: document.getElementById('nz_m').value,
+                    hx_m: document.getElementById('hx_m').value,
+                    hy_m: document.getElementById('hy_m').value,
+                    hz_m: document.getElementById('hz_m').value
+                },
+                multiscale: {
+                    nxvacl_m: document.getElementById('nxvacl_m').value,
+                    nxvacr_m: document.getElementById('nxvacr_m').value,
+                    boundary_em_1_1: document.getElementById('boundary_em_1_1').value,
+                    boundary_em_1_2: document.getElementById('boundary_em_1_2').value
+                },
+                viewer: {
+                    labels_on: false,
+                    style: 'spheres'
+                }
+            };
+        }
+
+        // Backward-compatible alias during the JSON-first migration.
+        function readFormState() {
+            return buildCanonicalState();
+        }
+
+        function normalizeState(state) {
+            const rawRgrid = Array.isArray(state.grid) ? state.grid : state.grid.num_rgrid;
+            const rawKgrid = Array.isArray(state.kgrid) ? state.kgrid : state.grid.num_kgrid;
+            const normalized = {
+                ...state,
+                metadata: {
+                    schema_version: state.metadata?.schema_version || '1.0',
+                    app_version: state.metadata?.app_version || '1.0',
+                    template_name: state.metadata?.template_name || '',
+                    source: state.metadata?.source || 'manual'
+                },
+                control: {
+                    sysname: state.control?.sysname || 'salmon_gs'
+                },
+                units: {
+                    unit_system: state.units?.unit_system || state.calculation?.unit_system || 'A_eV_fs'
+                },
+                parallel: {
+                    ...state.parallel,
+                    nproc_k: safeParseInt(state.parallel.nproc_k, 1),
+                    nproc_ob: safeParseInt(state.parallel.nproc_ob, 1),
+                    nproc_rgrid: state.parallel.nproc_rgrid.map((value) => safeParseInt(value, 1))
+                },
+                system: {
+                    ...state.system,
+                    al_vec1: state.system.al_vec1.map((value) => safeParseFloat(value, 0)),
+                    al_vec2: state.system.al_vec2.map((value) => safeParseFloat(value, 0)),
+                    al_vec3: state.system.al_vec3.map((value) => safeParseFloat(value, 0)),
+                    nelem: safeParseInt(state.system.nelem, 0),
+                    natom: safeParseInt(state.system.natom, 0),
+                    nelec: safeParseFloat(state.system.nelec, 0),
+                    nstate: safeParseInt(state.system.nstate, 0),
+                    temperature_k: safeParseFloat(state.system.temperature_k, -1.0),
+                    atomic_coordinate_mode: state.system.atomic_coordinate_mode || state.atomic_coordinate_mode || 'fractional'
+                },
+                pseudo: state.pseudo.map((entry) => ({
+                    ...entry,
+                    type: safeParseInt(entry.type, 0)
+                })),
+                grid: {
+                    num_rgrid: rawRgrid.map((value) => safeParseInt(value, 0)),
+                    num_kgrid: rawKgrid.map((value) => safeParseInt(value, 0))
+                },
+                scf: {
+                    ...state.scf,
+                    nscf: safeParseInt(state.scf.nscf, 0)
+                },
+                functional: {
+                    xc: state.functional?.xc || state.calculation?.xc || 'PZ'
+                },
+                atoms: state.atoms.map((atom) => ({
+                    ...atom,
+                    x: safeParseFloat(atom.x, 0),
+                    y: safeParseFloat(atom.y, 0),
+                    z: safeParseFloat(atom.z, 0),
+                    type: safeParseInt(atom.type, 0)
+                })),
+                rt: {
+                    ...state.rt,
+                    nt: safeParseInt(state.rt.nt, 0),
+                    dt: safeParseFloat(state.rt.dt, 0)
+                },
+                analysis: {
+                    ...state.analysis
+                },
+                maxwell: {
+                    ...(state.maxwell || state.singlescale),
+                    nx_m: safeParseInt((state.maxwell || state.singlescale).nx_m, 0),
+                    ny_m: safeParseInt((state.maxwell || state.singlescale).ny_m, 0),
+                    nz_m: safeParseInt((state.maxwell || state.singlescale).nz_m, 0),
+                    hx_m: safeParseFloat((state.maxwell || state.singlescale).hx_m, 0),
+                    hy_m: safeParseFloat((state.maxwell || state.singlescale).hy_m, 0),
+                    hz_m: safeParseFloat((state.maxwell || state.singlescale).hz_m, 0)
+                },
+                multiscale: {
+                    ...state.multiscale,
+                    nxvacl_m: safeParseInt(state.multiscale.nxvacl_m, 0),
+                    nxvacr_m: safeParseInt(state.multiscale.nxvacr_m, 0)
+                },
+                viewer: {
+                    labels_on: Boolean(state.viewer?.labels_on),
+                    style: state.viewer?.style || 'spheres'
+                }
+            };
+            return {
+                ...normalized,
+                theory: normalized.calculation.theory,
+                periodic: normalized.system.yn_periodic,
+                grid: normalized.grid.num_rgrid,
+                kgrid: normalized.grid.num_kgrid,
+                nelec: normalized.system.nelec,
+                nstate: normalized.system.nstate,
+                nt: normalized.rt.nt,
+                dt: normalized.rt.dt,
+                atomic_coordinate_mode: normalized.system.atomic_coordinate_mode,
+                cell: {
+                    al_vec1: normalized.system.al_vec1,
+                    al_vec2: normalized.system.al_vec2,
+                    al_vec3: normalized.system.al_vec3,
+                    temperature_k: normalized.system.temperature_k
+                },
+                singlescale: normalized.maxwell
+            };
+        }
+
+        function readForm() {
+            state = normalizeState(readFormState());
+            globalThis.state = state;
+            return state;
+        }
+
+        function validateImportedJsonStructure(raw) {
+            const requiredKeys = ['metadata', 'calculation', 'system', 'atoms', 'pseudo', 'grid', 'parallel', 'scf', 'rt', 'analysis', 'maxwell', 'multiscale', 'viewer'];
+            if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+                return { valid: false, error: 'Top-level JSON object is required.' };
+            }
+            for (const key of requiredKeys) {
+                if (!(key in raw)) {
+                    return { valid: false, error: `Missing required top-level key: ${key}` };
+                }
+            }
+            if (!raw.metadata || !raw.metadata.schema_version) {
+                return { valid: false, error: 'metadata.schema_version is required.' };
+            }
+            if (!Array.isArray(raw.atoms)) {
+                return { valid: false, error: 'atoms must be an array.' };
+            }
+            if (!Array.isArray(raw.pseudo)) {
+                return { valid: false, error: 'pseudo must be an array.' };
+            }
+            if (!['fractional', 'cartesian'].includes(raw.system.atomic_coordinate_mode)) {
+                return { valid: false, error: 'system.atomic_coordinate_mode must be fractional or cartesian.' };
+            }
+            return { valid: true };
+        }
+
+        function exportJsonFromState(activeState) {
+            return JSON.stringify({
+                metadata: activeState.metadata,
+                calculation: activeState.calculation,
+                system: {
+                    yn_periodic: activeState.system.yn_periodic,
+                    atomic_coordinate_mode: activeState.system.atomic_coordinate_mode,
+                    al_vec1: activeState.system.al_vec1,
+                    al_vec2: activeState.system.al_vec2,
+                    al_vec3: activeState.system.al_vec3,
+                    nelec: activeState.system.nelec,
+                    nstate: activeState.system.nstate,
+                    temperature_k: activeState.system.temperature_k
+                },
+                atoms: activeState.atoms,
+                pseudo: activeState.pseudo,
+                grid: {
+                    num_rgrid: activeState.grid,
+                    num_kgrid: activeState.kgrid
+                },
+                parallel: activeState.parallel,
+                scf: activeState.scf,
+                rt: activeState.rt,
+                analysis: activeState.analysis,
+                maxwell: activeState.maxwell,
+                multiscale: activeState.multiscale,
+                viewer: activeState.viewer
+            }, null, 2);
+        }
+
+        function applyStateToForm(nextState) {
+            const normalized = normalizeState(nextState);
+            currentTemplateName = normalized.metadata.template_name || '';
+            currentTemplateSource = normalized.metadata.source || 'json';
+            atomicCoordinateMode = normalized.system.atomic_coordinate_mode;
+            document.getElementById('theory').value = normalized.calculation.theory;
+            document.getElementById('xc').value = normalized.functional.xc;
+            document.getElementById('yn_periodic').value = normalized.system.yn_periodic;
+            document.getElementById('nscf').value = String(normalized.scf.nscf);
+            document.getElementById('threshold').value = normalized.scf.threshold;
+            document.getElementById('nelec').value = String(normalized.system.nelec);
+            document.getElementById('nstate').value = String(normalized.system.nstate);
+            document.getElementById('temperature_k').value = String(normalized.system.temperature_k);
+            document.getElementById('rgrid_x').value = String(normalized.grid[0]);
+            document.getElementById('rgrid_y').value = String(normalized.grid[1]);
+            document.getElementById('rgrid_z').value = String(normalized.grid[2]);
+            document.getElementById('kgrid_x').value = String(normalized.kgrid[0]);
+            document.getElementById('kgrid_y').value = String(normalized.kgrid[1]);
+            document.getElementById('kgrid_z').value = String(normalized.kgrid[2]);
+            document.getElementById('nproc_k').value = String(normalized.parallel.nproc_k);
+            document.getElementById('nproc_ob').value = String(normalized.parallel.nproc_ob);
+            document.getElementById('nproc_rgrid_x').value = String(normalized.parallel.nproc_rgrid[0]);
+            document.getElementById('nproc_rgrid_y').value = String(normalized.parallel.nproc_rgrid[1]);
+            document.getElementById('nproc_rgrid_z').value = String(normalized.parallel.nproc_rgrid[2]);
+            document.getElementById('nt').value = String(normalized.rt.nt);
+            document.getElementById('dt').value = String(normalized.rt.dt);
+            document.getElementById('propagator').value = normalized.rt.propagator;
+            document.getElementById('trans_longi').value = normalized.rt.trans_longi;
+            document.getElementById('ae_shape1').value = normalized.rt.ae_shape1;
+            document.getElementById('I_wcm2_1').value = normalized.rt.I_wcm2_1;
+            document.getElementById('omega1').value = normalized.rt.omega1;
+            document.getElementById('tw1').value = normalized.rt.tw1;
+            document.getElementById('phi_cep1').value = normalized.rt.phi_cep1;
+            document.getElementById('al_vec1_x').value = String(normalized.system.al_vec1[0]);
+            document.getElementById('al_vec1_y').value = String(normalized.system.al_vec1[1]);
+            document.getElementById('al_vec1_z').value = String(normalized.system.al_vec1[2]);
+            document.getElementById('al_vec2_x').value = String(normalized.system.al_vec2[0]);
+            document.getElementById('al_vec2_y').value = String(normalized.system.al_vec2[1]);
+            document.getElementById('al_vec2_z').value = String(normalized.system.al_vec2[2]);
+            document.getElementById('al_vec3_x').value = String(normalized.system.al_vec3[0]);
+            document.getElementById('al_vec3_y').value = String(normalized.system.al_vec3[1]);
+            document.getElementById('al_vec3_z').value = String(normalized.system.al_vec3[2]);
+            document.getElementById('method_singlescale').value = normalized.maxwell.method_singlescale;
+            document.getElementById('fdtddim').value = normalized.maxwell.fdtddim;
+            document.getElementById('nx_m').value = String(normalized.maxwell.nx_m);
+            document.getElementById('ny_m').value = String(normalized.maxwell.ny_m);
+            document.getElementById('nz_m').value = String(normalized.maxwell.nz_m);
+            document.getElementById('hx_m').value = String(normalized.maxwell.hx_m);
+            document.getElementById('hy_m').value = String(normalized.maxwell.hy_m);
+            document.getElementById('hz_m').value = String(normalized.maxwell.hz_m);
+            document.getElementById('nxvacl_m').value = String(normalized.multiscale.nxvacl_m);
+            document.getElementById('nxvacr_m').value = String(normalized.multiscale.nxvacr_m);
+            document.getElementById('boundary_em_1_1').value = normalized.multiscale.boundary_em_1_1;
+            document.getElementById('boundary_em_1_2').value = normalized.multiscale.boundary_em_1_2;
+            ANALYSIS_FIELDS.forEach((field) => {
+                document.getElementById(field.id).value = normalized.analysis[field.id] ?? field.defaultValue;
+            });
+            atoms = normalized.atoms.map((atom) => ({
+                element: atom.element,
+                x: String(atom.x),
+                y: String(atom.y),
+                z: String(atom.z),
+                type: atom.type
+            }));
+            pseudoSettings = Object.fromEntries(normalized.pseudo.map((entry) => [entry.element, {
+                type: String(entry.type),
+                izatom: String(entry.izatom),
+                file_pseudo: entry.file_pseudo,
+                lloc_ps: String(entry.lloc_ps),
+                lmax_ps: String(entry.lmax_ps)
+            }]));
+            maybeSuggestTemplate();
+            updateAtomsList();
+            updatePseudoList();
+            lastLatticeLengths = getCurrentLatticeLengths();
+        }
+
+        async function importJsonToState(file) {
+            const jsonStatus = document.getElementById('jsonStatus');
+            try {
+                const rawText = await file.text();
+                const raw = JSON.parse(rawText);
+                const shape = validateImportedJsonStructure(raw);
+                if (!shape.valid) {
+                    throw new Error(shape.error);
+                }
+                applyStateToForm(raw);
+                jsonStatus.textContent = 'JSON configuration imported.';
+                updatePreview();
+            } catch (error) {
+                jsonStatus.textContent = `JSON import failed: ${error.message}`;
+            }
+        }
+
+        // Accumulate validator findings without mutating DOM or state.
+        function validateState(state) {
+            const result = { errors: [], warnings: [], suggestions: [] };
+            const pushError = (code, message, field) => {
+                result.errors.push({ code, message, field });
+            };
+            const pushWarning = (code, message, field) => {
+                result.warnings.push({ code, message, field });
+            };
+            const pushSuggestion = (code, message, field) => {
+                result.suggestions.push({ code, message, field });
+            };
+
+            if (vectorMagnitude(state.system.al_vec1) === 0 || vectorMagnitude(state.system.al_vec2) === 0 || vectorMagnitude(state.system.al_vec3) === 0) {
+                pushError('LATTICE_ZERO', 'Lattice vectors must be non-zero.', 'system.al_vec');
+            }
+            if (state.system.nelec <= 0) {
+                pushError('NELEC_INVALID', 'nelec must be positive.', 'system.nelec');
+            }
+            if (state.system.nstate <= 0) {
+                pushError('NSTATE_INVALID', 'nstate must be positive.', 'system.nstate');
+            }
+            if (state.system.natom < 1) {
+                pushError('ATOM_MISSING', 'At least one atom is required.', 'atoms');
+            }
+            if (state.system.nelem < 1 || state.pseudo.length < 1) {
+                pushError('PSEUDO_MISSING', 'At least one pseudo entry is required.', 'pseudo');
+            }
+
+            state.grid.forEach((value, index) => {
+                if (value <= 0) pushError('RGRID_INVALID', `num_rgrid(${index + 1}) must be positive.`, 'grid.num_rgrid');
+            });
+            state.kgrid.forEach((value, index) => {
+                if (value <= 0) pushError('KGRID_INVALID', `num_kgrid(${index + 1}) must be positive.`, 'grid.num_kgrid');
+            });
+            state.parallel.nproc_rgrid.forEach((value, index) => {
+                if (value <= 0) pushError('NPROC_RGRID_INVALID', `nproc_rgrid(${index + 1}) must be positive.`, 'parallel.nproc_rgrid');
+            });
+            if (state.parallel.nproc_k <= 0) {
+                pushError('NPROC_K_INVALID', 'nproc_k must be positive.', 'parallel.nproc_k');
+            }
+            if (state.parallel.nproc_ob <= 0) {
+                pushError('NPROC_OB_INVALID', 'nproc_ob must be positive.', 'parallel.nproc_ob');
+            }
+
+            const typeSet = new Set();
+            state.pseudo.forEach((entry) => {
+                if (!entry.file_pseudo) {
+                    pushError('PSEUDO_EMPTY', `Pseudo file for ${entry.element} is empty.`, 'pseudo.file_pseudo');
+                }
+                if ((entry.file_pseudo || '').includes('REPLACE_WITH_')) {
+                    pushError('PSEUDO_PLACEHOLDER', `Pseudo file for ${entry.element} still contains placeholder text.`, 'pseudo.file_pseudo');
+                }
+                if (!Number.isInteger(parseInt(entry.izatom, 10))) {
+                    pushError('IZATOM_INVALID', `izatom for ${entry.element} must be an integer.`, 'pseudo.izatom');
+                }
+                if (!Number.isInteger(parseInt(entry.lloc_ps, 10))) {
+                    pushError('LLOC_INVALID', `lloc_ps for ${entry.element} must be an integer.`, 'pseudo.lloc_ps');
+                }
+                if (!Number.isInteger(parseInt(entry.lmax_ps, 10))) {
+                    pushError('LMAX_INVALID', `lmax_ps for ${entry.element} must be an integer.`, 'pseudo.lmax_ps');
+                }
+                if (typeSet.has(entry.type)) {
+                    pushError('PSEUDO_TYPE_DUPLICATE', 'Pseudo types must be unique.', 'pseudo.type');
+                }
+                typeSet.add(entry.type);
+            });
+
+            state.atoms.forEach((atom) => {
+                if (!typeSet.has(atom.type)) {
+                    pushError('ATOM_TYPE_MISMATCH', `Atom type ${atom.type} has no matching pseudo entry.`, 'atoms.type');
+                }
+            });
+
+            if (state.system.yn_periodic === 'y') {
+                if (getAtomicCoordinateMode(state) !== 'fractional') {
+                    pushWarning('PERIODIC_COORD_MODE', 'Periodic output expects fractional coordinates.', 'atomic_coordinate_mode');
+                }
+                if (state.kgrid.every((value) => value === 1)) {
+                    pushWarning('LOW_KGRID', 'Periodic system is using a 1x1x1 k-grid.', 'grid.num_kgrid');
+                    pushSuggestion('KGRID_INCREASE', 'Try at least a 2x2x2 k-grid for periodic systems.', 'grid.num_kgrid');
+                }
+                const outOfRange = state.atoms.some((atom) => {
+                    return atom.x < -0.05 || atom.x >= 1.05 || atom.y < -0.05 || atom.y >= 1.05 || atom.z < -0.05 || atom.z >= 1.05;
+                });
+                if (outOfRange) {
+                    pushWarning('FRACTIONAL_COORD_RANGE', 'Periodic atomic coordinates are outside the expected [0,1) range.', 'atoms');
+                }
+            }
+
+            if (state.system.yn_periodic === 'n') {
+                const cellLengths = [
+                    vectorMagnitude(state.system.al_vec1),
+                    vectorMagnitude(state.system.al_vec2),
+                    vectorMagnitude(state.system.al_vec3)
+                ];
+                const lowMargin = state.atoms.some((atom) => {
+                    const coord = getCartesianAtom(atom, state);
+                    return [coord.x, coord.y, coord.z].some((value, index) => {
+                        const axisLength = cellLengths[index];
+                        return value < 5.0 || axisLength - value < 5.0;
+                    });
+                });
+                if (lowMargin) {
+                    pushWarning('LOW_VACUUM_MARGIN', 'Isolated system may have less than 5 A of vacuum margin.', 'atoms');
+                }
+            }
+
+            if (state.grid.some((value) => value < 8)) {
+                pushWarning('RGRID_COARSE', 'Real-space grid looks very coarse.', 'grid.num_rgrid');
+            }
+
+            const estimatedResources = estimateCost(state);
+            if (estimatedResources.totalBytes > 8 * 1024 * 1024 * 1024) {
+                pushWarning('MEMORY_LARGE', 'Estimated wavefunction memory exceeds 8 GB.', 'grid.num_rgrid');
+            }
+
+            if (isRTTheory(state.calculation.theory)) {
+                const propagatorAllowlist = ['etrs', 'aetrs', 'exp_mid'];
+                const transLongiAllowlist = ['tr', 'lo'];
+                const aeShapeAllowlist = ['Acos2', 'Ecos2', 'impulse'];
+                const requiresPulseEnvelope = !isLinearResponseTheory(state.calculation.theory);
+
+                if (state.rt.nt <= 0) {
+                    pushError('RT_NT_INVALID', 'nt must be positive for RT calculations.', 'rt.nt');
+                }
+                if (state.rt.dt <= 0) {
+                    pushError('RT_DT_INVALID', 'dt must be positive for RT calculations.', 'rt.dt');
+                }
+                if (state.system.nstate < state.system.nelec / 2) {
+                    pushError('RT_NSTATE_TOO_SMALL', 'RT calculations require nstate >= nelec / 2.', 'system.nstate');
+                }
+                if (!propagatorAllowlist.includes(state.rt.propagator)) {
+                    pushError('RT_PROPAGATOR_INVALID', 'propagator is not in the supported allowlist.', 'rt.propagator');
+                }
+                if (!transLongiAllowlist.includes(state.rt.trans_longi)) {
+                    pushError('RT_TRANS_LONGI_INVALID', 'trans_longi must be tr or lo.', 'rt.trans_longi');
+                }
+                if (!aeShapeAllowlist.includes(state.rt.ae_shape1)) {
+                    pushError('RT_AE_SHAPE_INVALID', 'ae_shape1 is not in the supported allowlist.', 'rt.ae_shape1');
+                }
+                if (requiresPulseEnvelope && safeParseFloat(state.rt.I_wcm2_1, 0) <= 0) {
+                    pushWarning('RT_INTENSITY_NONPOSITIVE', 'I_wcm2_1 should usually be positive.', 'rt.I_wcm2_1');
+                }
+                if (requiresPulseEnvelope && safeParseFloat(state.rt.omega1, 0) <= 0) {
+                    pushError('RT_OMEGA_INVALID', 'omega1 must be positive.', 'rt.omega1');
+                }
+                if (requiresPulseEnvelope && safeParseFloat(state.rt.tw1, 0) <= 0) {
+                    pushError('RT_TW_INVALID', 'tw1 must be positive.', 'rt.tw1');
+                }
+                if (state.rt.dt > 0.2) {
+                    pushSuggestion('RT_DT_LARGE', 'dt looks large for RT. A short trial run is recommended.', 'rt.dt');
+                }
+            }
+
+            if (isSingleScaleTheory(state.calculation.theory)) {
+                const methodAllowlist = ['1d', '3d'];
+                const fdtddimAllowlist = ['1d', '3d'];
+
+                if (!methodAllowlist.includes(state.singlescale.method_singlescale)) {
+                    pushError('METHOD_SINGLESCALE_INVALID', 'method_singlescale must be 1d or 3d.', 'singlescale.method_singlescale');
+                }
+                if (!fdtddimAllowlist.includes(state.singlescale.fdtddim)) {
+                    pushError('FDTDDIM_INVALID', 'fdtddim must be 1d or 3d.', 'singlescale.fdtddim');
+                }
+                if (state.singlescale.nx_m <= 0) {
+                    pushError('NX_M_INVALID', 'nx_m must be positive.', 'singlescale.nx_m');
+                }
+                if (state.singlescale.ny_m <= 0) {
+                    pushError('NY_M_INVALID', 'ny_m must be positive.', 'singlescale.ny_m');
+                }
+                if (state.singlescale.nz_m <= 0) {
+                    pushError('NZ_M_INVALID', 'nz_m must be positive.', 'singlescale.nz_m');
+                }
+                if (state.singlescale.hx_m < 0) {
+                    pushError('HX_M_INVALID', 'hx_m must be non-negative.', 'singlescale.hx_m');
+                }
+                if (state.singlescale.hy_m < 0) {
+                    pushError('HY_M_INVALID', 'hy_m must be non-negative.', 'singlescale.hy_m');
+                }
+                if (state.singlescale.hz_m < 0) {
+                    pushError('HZ_M_INVALID', 'hz_m must be non-negative.', 'singlescale.hz_m');
+                }
+                if (state.singlescale.nx_m === 1 && state.singlescale.ny_m === 1 && state.singlescale.nz_m === 1) {
+                    pushWarning('MAXWELL_GRID_TRIVIAL', 'Single-scale Maxwell grid is still set to 1x1x1.', 'singlescale');
+                }
+            }
+
+            if (isMultiScaleTheory(state.calculation.theory)) {
+                if (state.singlescale.nx_m <= 0) {
+                    pushError('NX_M_INVALID', 'nx_m must be positive.', 'singlescale.nx_m');
+                }
+                if (state.singlescale.ny_m <= 0) {
+                    pushError('NY_M_INVALID', 'ny_m must be positive.', 'singlescale.ny_m');
+                }
+                if (state.singlescale.nz_m <= 0) {
+                    pushError('NZ_M_INVALID', 'nz_m must be positive.', 'singlescale.nz_m');
+                }
+                if (state.singlescale.hx_m < 0) {
+                    pushError('HX_M_INVALID', 'hx_m must be non-negative.', 'singlescale.hx_m');
+                }
+                if (state.singlescale.hy_m < 0) {
+                    pushError('HY_M_INVALID', 'hy_m must be non-negative.', 'singlescale.hy_m');
+                }
+                if (state.singlescale.hz_m < 0) {
+                    pushError('HZ_M_INVALID', 'hz_m must be non-negative.', 'singlescale.hz_m');
+                }
+                if (!state.multiscale.boundary_em_1_1 || !state.multiscale.boundary_em_1_2) {
+                    pushError('BOUNDARY_EM_INVALID', 'Maxwell boundary conditions must be provided.', 'multiscale.boundary_em');
+                }
+                if (state.multiscale.nxvacl_m <= 0 || state.multiscale.nxvacr_m <= 0) {
+                    pushError('MATTER_REGION_INVALID', 'Multiscale mode requires vacuum or matter-region padding values.', 'multiscale');
+                }
+                if (state.rt.nt <= 0 || state.rt.dt <= 0 || safeParseFloat(state.rt.omega1, 0) <= 0 || safeParseFloat(state.rt.tw1, 0) <= 0) {
+                    pushError('MULTISCALE_PULSE_INVALID', 'Multiscale mode requires valid pulse and time-grid parameters.', 'rt');
+                }
+                pushWarning('MULTISCALE_TEMPLATE_LIMITED', 'This multiscale editor is a simplified testsuite-oriented subset.', 'multiscale');
+            }
+
+            if (state.system.nstate < state.system.nelec) {
+                pushWarning('NSTATE_SMALL', 'nstate is smaller than nelec.', 'system.nstate');
+            }
+            if (state.system.nstate === state.system.nelec) {
+                pushSuggestion('NSTATE_SEMICONDUCTOR_HINT', 'For semiconductors or insulators, nstate close to nelec is a reasonable starting point.', 'system.nstate');
+            }
+
+            return result;
+        }
+
+        function validateInput(state) {
+            return validateState(state);
+        }
+
+        function renderValidation(result) {
+            const container = document.getElementById('validationSummary');
+            const downloadButton = document.getElementById('downloadButton');
+            const exportJsonButton = document.getElementById('exportJsonButton');
+            const downloadStatus = document.getElementById('downloadStatus');
+            const renderEntries = (entries) => entries.map((entry) => {
+                return `<div class="text-sm">${entry.code}: ${entry.message}</div>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="font-medium mb-2">Validation Summary</div>
+                <div class="text-sm mb-2">Errors: ${result.errors.length} | Warnings: ${result.warnings.length} | Suggestions: ${result.suggestions.length}</div>
+                ${result.errors.length ? `<div class="info-box info-box-error mb-2">${renderEntries(result.errors)}</div>` : ''}
+                ${result.warnings.length ? `<div class="info-box info-box-warning mb-2">${renderEntries(result.warnings)}</div>` : ''}
+                ${result.suggestions.length ? `<div class="info-box info-box-info">${renderEntries(result.suggestions)}</div>` : ''}
+            `;
+
+            downloadButton.disabled = result.errors.length > 0;
+            if (exportJsonButton) {
+                exportJsonButton.disabled = result.errors.length > 0;
+            }
+            downloadStatus.textContent = result.errors.length > 0
+                ? 'Download disabled until validation errors are fixed.'
+                : 'Download is available.';
+        }
+
+        function buildAnalysisLines(state) {
+            return ANALYSIS_FIELDS
+                .map((field) => {
+                    const value = state.analysis[field.id];
+                    if (value === '' || value === null || value === undefined) {
+                        return null;
+                    }
+                    if (field.kind === 'select' && value === field.defaultValue && field.id !== 'yn_out_dns') {
+                        return null;
+                    }
+                    const renderedValue = field.quoted ? `'${value}'` : value;
+                    return `  ${field.label} = ${renderedValue}`;
+                })
+                .filter(Boolean)
+                .join('\n');
+        }
+
+        function getTemplateForCurrentMode() {
+            const theory = document.getElementById('theory').value;
+            const ynPeriodic = document.getElementById('yn_periodic').value;
+            if (theory === 'dft') return ynPeriodic === 'y' ? 'bulk-gs' : 'isolated-gs';
+            if (theory === 'tddft_response') return ynPeriodic === 'y' ? 'bulk-lr' : 'isolated-lr';
+            if (theory === 'tddft_pulse') return ynPeriodic === 'y' ? 'bulk-rt' : 'isolated-rt';
+            if (theory === 'single_scale_maxwell_tddft') return 'maxwell';
+            if (theory === 'multi_scale_maxwell_tddft') return 'multiscale';
+            return null;
+        }
+
+        function maybeSuggestTemplate() {
+            const templateName = getTemplateForCurrentMode();
+            if (templateName) {
+                document.getElementById('templateSelect').value = templateName;
+            }
+        }
+
+        function applyModeTemplate() {
+            const templateName = getTemplateForCurrentMode();
+            if (!templateName) {
+                updatePreview();
+                return;
+            }
+            applyTemplate(templateName);
+        }
+
+        function applyTemplate(name) {
+            const templateMeta = loadTestsuiteTemplate(name);
+            const template = templateMeta ? templateMeta.defaults : null;
+            if (!template) {
+                return;
+            }
+            currentTemplateName = name;
+            currentTemplateSource = templateMeta.source || 'template';
+
+            document.getElementById('theory').value = templateMeta.theory;
+            document.getElementById('yn_periodic').value = templateMeta.periodic;
+            document.getElementById('nt').value = '';
+            document.getElementById('dt').value = '';
+            document.getElementById('propagator').value = 'etrs';
+            document.getElementById('trans_longi').value = 'tr';
+            document.getElementById('ae_shape1').value = '';
+            document.getElementById('I_wcm2_1').value = '';
+            document.getElementById('omega1').value = '';
+            document.getElementById('tw1').value = '';
+            document.getElementById('phi_cep1').value = '0.0';
+            atomicCoordinateMode = template.atomic_coordinate_mode || 'fractional';
+            if (template.atoms) {
+                atoms = template.atoms.map((atom) => ({ ...atom }));
+                updateAtomsList();
+            }
+            if (template.pseudo) {
+                pseudoSettings = Object.fromEntries(
+                    Object.entries(template.pseudo).map(([element, pseudo]) => [element, { ...pseudo }])
+                );
+                updatePseudoList();
+            }
+            if (template.latticeVectors) {
+                document.getElementById('al_vec1_x').value = template.latticeVectors[0][0];
+                document.getElementById('al_vec1_y').value = template.latticeVectors[0][1];
+                document.getElementById('al_vec1_z').value = template.latticeVectors[0][2];
+                document.getElementById('al_vec2_x').value = template.latticeVectors[1][0];
+                document.getElementById('al_vec2_y').value = template.latticeVectors[1][1];
+                document.getElementById('al_vec2_z').value = template.latticeVectors[1][2];
+                document.getElementById('al_vec3_x').value = template.latticeVectors[2][0];
+                document.getElementById('al_vec3_y').value = template.latticeVectors[2][1];
+                document.getElementById('al_vec3_z').value = template.latticeVectors[2][2];
+            }
+            if (template.kgrid) {
+                document.getElementById('kgrid_x').value = template.kgrid[0];
+                document.getElementById('kgrid_y').value = template.kgrid[1];
+                document.getElementById('kgrid_z').value = template.kgrid[2];
+            }
+            if (template.rgrid) {
+                document.getElementById('rgrid_x').value = template.rgrid[0];
+                document.getElementById('rgrid_y').value = template.rgrid[1];
+                document.getElementById('rgrid_z').value = template.rgrid[2];
+            }
+            if (template.nscf) document.getElementById('nscf').value = template.nscf;
+            if (template.threshold) document.getElementById('threshold').value = template.threshold;
+            if (template.nstate) document.getElementById('nstate').value = template.nstate;
+            if (template.nelec) document.getElementById('nelec').value = template.nelec;
+            if (template.nt) document.getElementById('nt').value = template.nt;
+            if (template.dt) document.getElementById('dt').value = template.dt;
+            if (template.ae_shape1) document.getElementById('ae_shape1').value = template.ae_shape1;
+            if (template.trans_longi) document.getElementById('trans_longi').value = template.trans_longi;
+            if (template.I_wcm2_1) document.getElementById('I_wcm2_1').value = template.I_wcm2_1;
+            if (template.omega1) document.getElementById('omega1').value = template.omega1;
+            if (template.tw1) document.getElementById('tw1').value = template.tw1;
+            if (template.phi_cep1) document.getElementById('phi_cep1').value = template.phi_cep1;
+            if (template.fdtddim) document.getElementById('fdtddim').value = template.fdtddim;
+            if (template.nx_m) document.getElementById('nx_m').value = template.nx_m;
+            if (template.ny_m) document.getElementById('ny_m').value = template.ny_m;
+            if (template.nz_m) document.getElementById('nz_m').value = template.nz_m;
+            if (template.hx_m) document.getElementById('hx_m').value = template.hx_m;
+            if (template.hy_m) document.getElementById('hy_m').value = template.hy_m;
+            if (template.hz_m) document.getElementById('hz_m').value = template.hz_m;
+            if (template.nxvacl_m) document.getElementById('nxvacl_m').value = template.nxvacl_m;
+            if (template.nxvacr_m) document.getElementById('nxvacr_m').value = template.nxvacr_m;
+            if (template.boundary_em_1_1) document.getElementById('boundary_em_1_1').value = template.boundary_em_1_1;
+            if (template.boundary_em_1_2) document.getElementById('boundary_em_1_2').value = template.boundary_em_1_2;
+            ANALYSIS_FIELDS.forEach((field) => {
+                document.getElementById(field.id).value = field.defaultValue;
+            });
+            if (template.analysis) {
+                Object.entries(template.analysis).forEach(([key, value]) => {
+                    const element = document.getElementById(key);
+                    if (element) element.value = value;
+                });
+            }
+            cellInfo = null;
+            updateCellInfo();
+            lastLatticeLengths = getCurrentLatticeLengths();
+            updatePreview();
+        }
+
+        function loadTestsuiteTemplate(name) {
+            const template = templates[name];
+            if (!template) {
+                return null;
+            }
+            if (template.defaults.aliasOf) {
+                return templates[template.defaults.aliasOf];
+            }
+            return template;
+        }
+
+        function applySelectedTemplate() {
+            applyTemplate(document.getElementById('templateSelect').value);
+        }
+
+        function generateNamelistFromState(inputState) {
+            const state = normalizeState(inputState);
+            const pseudoEntries = [...state.pseudo].sort((a, b) => a.type - b.type);
+            const atomicSectionName = state.system.yn_periodic === 'y' ? 'atomic_red_coor' : 'atomic_coor';
+            const atomicLines = state.atoms.map((atom) => {
+                const coord = getOutputAtom(atom, state);
+                return `  '${atom.element}' ${coord.x} ${coord.y} ${coord.z} ${atom.type}`;
+            }).join('\n');
+
+            let input = `&calculation
+  theory = '${state.calculation.theory}'
+/
+
+&control
+  sysname = '${state.control.sysname}'
+/
+
+&units
+  unit_system = '${state.units.unit_system}'
+/
+
+&parallel
+  nproc_k = ${state.parallel.nproc_k}
+  nproc_ob = ${state.parallel.nproc_ob}
+  nproc_rgrid(1:3) = ${state.parallel.nproc_rgrid.join(', ')}
+/
+
+&system
+  yn_periodic = '${state.system.yn_periodic}'
+  al_vec1(1:3) = ${state.system.al_vec1.join(', ')}
+  al_vec2(1:3) = ${state.system.al_vec2.join(', ')}
+  al_vec3(1:3) = ${state.system.al_vec3.join(', ')}
+  nelem = ${state.system.nelem}
+  natom = ${state.system.natom}
+  nelec = ${state.system.nelec}
+  nstate = ${state.system.nstate}
+  temperature_k = ${state.system.temperature_k}
+/
+
+&pseudo
+${pseudoEntries.map((pseudo, i) => `  file_pseudo(${i + 1}) = '${pseudo.file_pseudo}'`).join('\n')}
+${pseudoEntries.map((pseudo, i) => `  izatom(${i + 1}) = ${pseudo.izatom}`).join('\n')}
+${pseudoEntries.map((pseudo, i) => `  lloc_ps(${i + 1}) = ${pseudo.lloc_ps}`).join('\n')}
+${pseudoEntries.map((pseudo, i) => `  lmax_ps(${i + 1}) = ${pseudo.lmax_ps}`).join('\n')}
+/
+
+&functional
+  xc = '${state.functional.xc}'
+/
+
+&rgrid
+  num_rgrid(1:3) = ${state.grid.join(', ')}
+/
+
+&kgrid
+  num_kgrid(1:3) = ${state.kgrid.join(', ')}
+/
+
+&scf
+  nscf = ${state.scf.nscf}
+  threshold = ${state.scf.threshold}
+/
+
+&${atomicSectionName}
+${atomicLines}
+/
+`;
+
+            const analysisLines = buildAnalysisLines(state);
+
+            if (isRTTheory(state.calculation.theory)) {
+                input += `
+
+&tgrid
+  nt = ${state.rt.nt}
+  dt = ${state.rt.dt}
+/
+
+&emfield
+  trans_longi = '${state.rt.trans_longi}'
+  ae_shape1 = '${state.rt.ae_shape1}'
+  I_wcm2_1 = ${state.rt.I_wcm2_1}
+  omega1 = ${state.rt.omega1}
+  tw1 = ${state.rt.tw1}
+  phi_cep1 = ${state.rt.phi_cep1}
+/
+`;
+                if (!isLinearResponseTheory(state.calculation.theory) && state.calculation.theory !== 'dft') {
+                    input = input.replace(
+                        "\n&emfield",
+                        `
+&propagation
+  propagator = '${state.rt.propagator}'
+/
+
+&emfield`
+                    );
+                }
+            }
+
+            if (analysisLines) {
+                input += `
+
+&analysis
+${analysisLines}
+/
+`;
+            }
+
+            if (isSingleScaleTheory(state.calculation.theory)) {
+                input += `
+
+&singlescale
+  method_singlescale = '${state.singlescale.method_singlescale}'
+/
+
+&multiscale
+  fdtddim = ${state.singlescale.fdtddim}
+  nx_m = ${state.singlescale.nx_m}
+  ny_m = ${state.singlescale.ny_m}
+  nz_m = ${state.singlescale.nz_m}
+  hx_m = ${state.singlescale.hx_m}
+  hy_m = ${state.singlescale.hy_m}
+  hz_m = ${state.singlescale.hz_m}
+/
+`;
+            }
+
+            if (isMultiScaleTheory(state.calculation.theory)) {
+                input += `
+
+&multiscale
+  nx_m = ${state.singlescale.nx_m}
+  ny_m = ${state.singlescale.ny_m}
+  nz_m = ${state.singlescale.nz_m}
+  hx_m = ${state.singlescale.hx_m}
+  hy_m = ${state.singlescale.hy_m}
+  hz_m = ${state.singlescale.hz_m}
+  nxvacl_m = ${state.multiscale.nxvacl_m}
+  nxvacr_m = ${state.multiscale.nxvacr_m}
+/
+
+&maxwell
+  boundary_em(1,1) = '${state.multiscale.boundary_em_1_1}'
+  boundary_em(1,2) = '${state.multiscale.boundary_em_1_2}'
+/
+`;
+            }
+
+            return input;
+        }
+
+        function generateInputFromState(state) {
+            return generateNamelistFromState(state);
+        }
+
+        function generateInput(activeState = null) {
+            const workingState = activeState || readForm();
+            const validation = validateInput(workingState);
+            if (validation.errors.length > 0) {
+                return '';
+            }
+            return generateNamelistFromState(workingState);
+        }
+
+        function triggerJsonImport() {
+            document.getElementById('jsonFileInput').click();
+        }
+
+        function downloadJson() {
+            const activeState = readForm();
+            const validation = validateInput(activeState);
+            renderValidation(validation);
+            if (validation.errors.length > 0) {
+                return;
+            }
+            const json = exportJsonFromState(activeState);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'salmon_config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            document.getElementById('jsonStatus').textContent = 'JSON exported.';
+        }
+
+        function updatePreview() {
+            updateTheorySections();
+            const activeState = readForm();
+            const validation = validateInput(activeState);
+            const cost = estimateCost(activeState);
+            const preview = document.getElementById('preview');
+            preview.textContent = validation.errors.length > 0 ? 'Input has errors.' : generateInputFromState(activeState);
+            updateCutoffInfo(activeState);
+            updateMemoryInfo(cost);
+            updatePseudoWarning();
+            renderValidation(validation);
+            renderStructureViewer(activeState);
+        }
+
+        // Event handlers
+        function addAtom() {
+            atoms.push({ element: 'Si', x: '0.0', y: '0.0', z: '0.0', type: 1 });
+            updateElectronInfo();
+            atoms = updateAtomsWithTypes(atoms, getElementTypeMap());
+            updateAtomsList();
+            updatePseudoList();
+            updatePreview();
+        }
+
+        function removeAtom(index) {
+            if (atoms.length > 1) {
+                atoms.splice(index, 1);
+                updateElectronInfo();
+                atoms = updateAtomsWithTypes(atoms, getElementTypeMap());
+                updateAtomsList();
+                updatePseudoList();
+                updatePreview();
+            }
+        }
+
+        function updateAtomElement(index, element) {
+            atoms[index].element = element;
+            updateElectronInfo();
+            atoms = updateAtomsWithTypes(atoms, getElementTypeMap());
+            updateAtomsList();
+            updatePseudoList();
+            updatePreview();
+        }
+
+        function updateAtomCoord(index, coord, value) {
+            atoms[index][coord] = value;
+            updatePreview();
+        }
+
+        function updateElectronInfo() {
+            const electronInfo = calculateElectronInfo(atoms);
+            document.getElementById('nelec').value = electronInfo.nelec;
+            document.getElementById('nstate').value = electronInfo.nstate;
+        }
+
+        function setNstate(multiplier) {
+            const nelec = parseInt(document.getElementById('nelec').value) || 0;
+            document.getElementById('nstate').value = Math.ceil(nelec * multiplier);
+            updatePreview();
+        }
+
+        function downloadInput() {
+            const activeState = readForm();
+            const validation = validateInput(activeState);
+            renderValidation(validation);
+            if (validation.errors.length > 0) {
+                return;
+            }
+            const input = generateInput(activeState);
+            const blob = new Blob([input], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'salmon.inp';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // CIF file handling
+        document.getElementById('jsonFileInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            await importJsonToState(file);
+            event.target.value = '';
+        });
+
+        document.getElementById('cifInput').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            const statusDiv = document.getElementById('cifStatus');
+            
+            if (!file) return;
+            
+            try {
+                statusDiv.innerHTML = `<div class="info-box info-box-success">Loaded: ${file.name}</div>`;
+                
+                const content = await file.text();
+                const parsedData = parseCIF(content);
+                
+                if (parsedData.atoms.length === 0) {
+                    throw new Error('No atoms found in CIF file');
+                }
+                
+                cellInfo = {
+                    ...parsedData.cellParams,
+                    volume: parsedData.latticeVectors.volume
+                };
+                
+                // Update lattice vectors
+                const previousLengths = getCurrentLatticeLengths();
+                const { al_vec1, al_vec2, al_vec3 } = parsedData.latticeVectors;
+                document.getElementById('al_vec1_x').value = al_vec1[0];
+                document.getElementById('al_vec1_y').value = al_vec1[1];
+                document.getElementById('al_vec1_z').value = al_vec1[2];
+                document.getElementById('al_vec2_x').value = al_vec2[0];
+                document.getElementById('al_vec2_y').value = al_vec2[1];
+                document.getElementById('al_vec2_z').value = al_vec2[2];
+                document.getElementById('al_vec3_x').value = al_vec3[0];
+                document.getElementById('al_vec3_y').value = al_vec3[1];
+                document.getElementById('al_vec3_z').value = al_vec3[2];
+                
+                // Update atoms
+                atoms = parsedData.atoms;
+                atomicCoordinateMode = 'fractional';
+                currentTemplateName = '';
+                currentTemplateSource = 'cif';
+                syncPseudoSettings();
+                
+                // Update electron info
+                const electronInfo = calculateElectronInfo(atoms);
+                document.getElementById('nelec').value = electronInfo.nelec;
+                document.getElementById('nstate').value = electronInfo.nstate;
+                syncMeshForCurrentLattice(previousLengths);
+                
+                updateCellInfo();
+                updateAtomsList();
+                updatePseudoList();
+                updatePreview();
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="info-box info-box-error">Error parsing CIF file: ${error.message}</div>`;
+            }
+        });
+
+        // Initialize the application
+        function init() {
+            updateLatticeVectors();
+            renderAnalysisFields();
+            initializeStructureViewer();
+            syncPseudoSettings();
+            atoms = updateAtomsWithTypes(atoms, getElementTypeMap());
+            updateAtomsList();
+            updatePseudoList();
+            updateCellInfo();
+            lastLatticeLengths = getCurrentLatticeLengths();
+            maybeSuggestTemplate();
+            updatePreview();
+            
+            // Add event listeners for real-time updates
+            const inputs = ['theory', 'xc', 'yn_periodic', 'nscf', 'threshold', 'nelec', 'nstate', 'temperature_k',
+                           'rgrid_x', 'rgrid_y', 'rgrid_z', 'kgrid_x', 'kgrid_y', 'kgrid_z',
+                           'nproc_k', 'nproc_ob', 'nproc_rgrid_x', 'nproc_rgrid_y', 'nproc_rgrid_z',
+                           'nt', 'dt', 'propagator', 'trans_longi', 'ae_shape1', 'I_wcm2_1', 'omega1', 'tw1',
+                           'phi_cep1', 'yn_out_dns', 'projection_option', 'out_projection_step', 'threshold_projection',
+                           'yn_out_intraband_current', 'nenergy', 'de', 'out_rt_energy_step', 'yn_out_rt_energy_components',
+                           'yn_out_dns_rt', 'out_dns_rt_step', 'yn_out_dns_ac_je', 'out_dns_ac_je_step', 'yn_out_micro_je',
+                           'out_micro_je_step', 'yn_out_current_decomposed', 'out_current_decomposed_step',
+                           'method_singlescale', 'fdtddim', 'nx_m', 'ny_m', 'nz_m',
+                           'hx_m', 'hy_m', 'hz_m', 'nxvacl_m', 'nxvacr_m', 'boundary_em_1_1', 'boundary_em_1_2'];
+            
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (id === 'theory' || id === 'yn_periodic') {
+                        element.addEventListener('change', () => {
+                            if (id === 'yn_periodic' && document.getElementById('yn_periodic').value === 'y' && atomicCoordinateMode === 'cartesian') {
+                                convertAtomsToFractionalForCurrentLattice();
+                                atomicCoordinateMode = 'fractional';
+                            }
+                            updateTheorySections();
+                            maybeSuggestTemplate();
+                            updatePreview();
+                        });
+                    } else {
+                        element.addEventListener('change', updatePreview);
+                    }
+                    element.addEventListener('input', updatePreview);
+                }
+            });
+        }
+
+        // Start the application when the page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
