@@ -2562,6 +2562,94 @@
             return state;
         }
 
+        function buildUploadedCanonicalState() {
+            return {
+                metadata: {
+                    schema_version: '1.0',
+                    app_version: '1.0',
+                    template_name: '',
+                    source: 'uploaded-input'
+                },
+                calculation: {
+                    theory: '',
+                    xc: 'PZ',
+                    unit_system: 'A_eV_fs'
+                },
+                control: {
+                    sysname: '',
+                    yn_restart: 'n',
+                    directory_read_data: ''
+                },
+                parallel: {
+                    nproc_k: '',
+                    nproc_ob: '',
+                    nproc_rgrid: ['', '', '']
+                },
+                system: {
+                    yn_periodic: '',
+                    al_vec1: ['', '', ''],
+                    al_vec2: ['', '', ''],
+                    al_vec3: ['', '', ''],
+                    nelem: '',
+                    natom: '',
+                    nelec: '',
+                    nstate: '',
+                    temperature_k: '',
+                    atomic_coordinate_mode: ''
+                },
+                pseudo: [],
+                grid: {
+                    num_rgrid: ['', '', ''],
+                    num_kgrid: ['', '', '']
+                },
+                scf: {
+                    nscf: '',
+                    threshold: ''
+                },
+                atoms: [],
+                rt: {
+                    nt: '',
+                    dt: '',
+                    propagator: '',
+                    trans_longi: '',
+                    ae_shape1: '',
+                    I_wcm2_1: '',
+                    omega1: '',
+                    tw1: '',
+                    phi_cep1: '',
+                    epdir_re1: ['', '', ''],
+                    ae_shape2: '',
+                    I_wcm2_2: '',
+                    omega2: '',
+                    tw2: '',
+                    phi_cep2: '',
+                    epdir_re2: ['', '', ''],
+                    yn_out_dns: ''
+                },
+                analysis: Object.fromEntries(getRegistryEntries('analysis').map((field) => [field.id, ''])),
+                maxwell: {
+                    method_singlescale: '',
+                    fdtddim: '',
+                    nx_m: '',
+                    ny_m: '',
+                    nz_m: '',
+                    hx_m: '',
+                    hy_m: '',
+                    hz_m: ''
+                },
+                multiscale: {
+                    nxvacl_m: '',
+                    nxvacr_m: '',
+                    boundary_em_1_1: '',
+                    boundary_em_1_2: ''
+                },
+                viewer: {
+                    labels_on: false,
+                    style: 'spheres'
+                }
+            };
+        }
+
         function getUploadSectionDefinitions() {
             return {
                 calculation: { keys: ['theory'] },
@@ -2573,7 +2661,7 @@
                 scf: { keys: ['nscf', 'threshold'] },
                 tgrid: { keys: ['nt', 'dt'] },
                 propagation: { keys: ['propagator'] },
-                emfield: { keys: ['trans_longi', 'ae_shape1', 'I_wcm2_1', 'omega1', 'tw1', 'phi_cep1', 'epdir_re1', 'ae_shape2', 'I_wcm2_2', 'omega2', 'tw2', 'phi_cep2', 'epdir_re2'] },
+                emfield: { keys: ['trans_longi', 'ae_shape1', 'I_wcm2_1', 'omega1', 'tw1', 'phi_cep1', 'epdir_re1', 'ae_shape2', 'I_wcm2_2', 'omega2', 'tw2', 'phi_cep2', 'epdir_re2', 'yn_out_dns'] },
                 analysis: { keys: getRegistryEntries('analysis').map((entry) => entry.id) },
                 singlescale: { keys: ['method_singlescale'] },
                 multiscale: { keys: ['fdtddim', 'nx_m', 'ny_m', 'nz_m', 'hx_m', 'hy_m', 'hz_m', 'nxvacl_m', 'nxvacr_m'] },
@@ -2682,7 +2770,7 @@
         }
 
         function buildStateFromParsedNamelist(parsed) {
-            const baseState = JSON.parse(JSON.stringify(defaultCanonicalState || buildCanonicalState()));
+            const baseState = buildUploadedCanonicalState();
             const nextState = JSON.parse(JSON.stringify(baseState));
             const sections = parsed.sections || {};
 
@@ -2711,7 +2799,12 @@
                 if (sections.tgrid.dt !== undefined) nextState.rt.dt = sections.tgrid.dt;
             }
             if (sections.propagation?.propagator !== undefined) nextState.rt.propagator = sections.propagation.propagator;
-            if (sections.emfield) Object.assign(nextState.rt, sections.emfield);
+            if (sections.emfield) {
+                Object.assign(nextState.rt, sections.emfield);
+                if (sections.emfield.yn_out_dns !== undefined && sections.analysis?.yn_out_dns === undefined) {
+                    nextState.analysis.yn_out_dns = sections.emfield.yn_out_dns;
+                }
+            }
             if (sections.analysis) Object.assign(nextState.analysis, sections.analysis);
             if (sections.singlescale?.method_singlescale !== undefined) nextState.maxwell.method_singlescale = sections.singlescale.method_singlescale;
             if (sections.multiscale) {
@@ -2789,9 +2882,9 @@
                 });
             });
             parsed.parseErrors.forEach((entry) => {
-                warnings.push({
-                    code: 'PARSE_WARNING',
-                    message: `Could not fully parse line in section ${entry.section}.`,
+                errors.push({
+                    code: 'PARSE_FATAL',
+                    message: `Could not parse line in section ${entry.section}.`,
                     field: entry.section
                 });
             });
@@ -3177,6 +3270,10 @@
                 if (requiresPulseEnvelope && safeParseFloat(state.rt.tw1, 0) <= 0) {
                     pushError('RT_TW_INVALID', 'tw1 must be positive.', 'rt.tw1');
                 }
+                const ynOutDns = String(state.analysis?.yn_out_dns ?? state.rt?.yn_out_dns ?? '').trim();
+                if (!['y', 'n'].includes(ynOutDns)) {
+                    pushError('RT_YN_OUT_DNS_REQUIRED', 'yn_out_dns must be set to y or n for RT calculations.', 'analysis.yn_out_dns');
+                }
                 const hasPulse2 = String(state.rt.ae_shape2 || '').trim() !== '';
                 if (hasPulse2) {
                     if (!aeShapeAllowlist.includes(state.rt.ae_shape2)) {
@@ -3395,6 +3492,19 @@
             document.getElementById('epdir_re2_x').value = '1.0';
             document.getElementById('epdir_re2_y').value = '0.0';
             document.getElementById('epdir_re2_z').value = '0.0';
+            document.getElementById('yn_out_dns').value = 'y';
+            document.getElementById('method_singlescale').value = '3d';
+            document.getElementById('fdtddim').value = '1d';
+            document.getElementById('nx_m').value = '1';
+            document.getElementById('ny_m').value = '1';
+            document.getElementById('nz_m').value = '1';
+            document.getElementById('hx_m').value = '0.0';
+            document.getElementById('hy_m').value = '0.0';
+            document.getElementById('hz_m').value = '0.0';
+            document.getElementById('nxvacl_m').value = '0';
+            document.getElementById('nxvacr_m').value = '0';
+            document.getElementById('boundary_em_1_1').value = 'abc';
+            document.getElementById('boundary_em_1_2').value = 'abc';
             atomicCoordinateMode = template.atomic_coordinate_mode || 'fractional';
             if (template.atoms) {
                 atoms = template.atoms.map((atom) => ({ ...atom }));
