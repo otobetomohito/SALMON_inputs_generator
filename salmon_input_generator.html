@@ -2852,32 +2852,42 @@
         }
 
         function exportJsonFromState(activeState) {
+            const normalized = normalizeState(activeState);
+            const validation = validateInput(normalized);
+            if (validation.errors.length > 0) {
+                throw new Error('JSON export blocked by validation errors.');
+            }
             return JSON.stringify({
-                metadata: activeState.metadata,
-                calculation: activeState.calculation,
+                metadata: {
+                    schema_version: normalized.metadata.schema_version || '1.0',
+                    app_version: normalized.metadata.app_version || '1.0',
+                    template_name: normalized.metadata.template_name || '',
+                    source: normalized.metadata.source || 'manual'
+                },
+                calculation: normalized.calculation,
                 system: {
-                    yn_periodic: activeState.system.yn_periodic,
-                    atomic_coordinate_mode: activeState.system.atomic_coordinate_mode,
-                    al_vec1: activeState.system.al_vec1,
-                    al_vec2: activeState.system.al_vec2,
-                    al_vec3: activeState.system.al_vec3,
-                    nelec: activeState.system.nelec,
-                    nstate: activeState.system.nstate,
-                    temperature_k: activeState.system.temperature_k
+                    yn_periodic: normalized.system.yn_periodic,
+                    atomic_coordinate_mode: normalized.system.atomic_coordinate_mode,
+                    al_vec1: normalized.system.al_vec1,
+                    al_vec2: normalized.system.al_vec2,
+                    al_vec3: normalized.system.al_vec3,
+                    nelec: normalized.system.nelec,
+                    nstate: normalized.system.nstate,
+                    temperature_k: normalized.system.temperature_k
                 },
-                atoms: activeState.atoms,
-                pseudo: activeState.pseudo,
+                atoms: normalized.atoms,
+                pseudo: normalized.pseudo,
                 grid: {
-                    num_rgrid: activeState.grid,
-                    num_kgrid: activeState.kgrid
+                    num_rgrid: normalized.grid,
+                    num_kgrid: normalized.kgrid
                 },
-                parallel: activeState.parallel,
-                scf: activeState.scf,
-                rt: activeState.rt,
-                analysis: activeState.analysis,
-                maxwell: activeState.maxwell,
-                multiscale: activeState.multiscale,
-                viewer: activeState.viewer
+                parallel: normalized.parallel,
+                scf: normalized.scf,
+                rt: normalized.rt,
+                analysis: normalized.analysis,
+                maxwell: normalized.maxwell,
+                multiscale: normalized.multiscale,
+                viewer: normalized.viewer
             }, null, 2);
         }
 
