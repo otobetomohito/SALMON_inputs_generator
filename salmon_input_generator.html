@@ -438,6 +438,18 @@
                         <div id="cifStatus"></div>
                     </div>
 
+                    <div class="section section-cyan">
+                        <h2 class="section-title">Upload SALMON Input</h2>
+                        <div>
+                            <label class="label">Upload existing SALMON input</label>
+                            <input type="file" accept=".inp,.input,.txt" id="salmonInputUpload" class="file-input">
+                        </div>
+                        <div id="salmonInputStatus" class="mt-2 text-sm" style="color: #6b7280;"></div>
+                        <div class="mt-2">
+                            <button id="loadInputToFormButton" class="button button-secondary" type="button" onclick="loadUploadedInputToForm()" disabled>Load Into Form</button>
+                        </div>
+                    </div>
+
                     <!-- Calculation Settings -->
                     <div class="section section-blue">
                         <h2 class="section-title">
@@ -488,6 +500,26 @@
                                     <option value="multiscale-testsuite">Multiscale Maxwell-TDDFT (testsuite sample)</option>
                                 </select>
                                 <button class="button button-secondary" type="button" onclick="applySelectedTemplate()">Apply</button>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <h3 class="section-subtitle">Control</h3>
+                            <div class="grid grid-2 gap-4">
+                                <div>
+                                    <label class="label">sysname</label>
+                                    <input type="text" id="sysname" class="input" value="salmon_gs">
+                                </div>
+                                <div>
+                                    <label class="label">yn_restart</label>
+                                    <select id="yn_restart" class="select">
+                                        <option value="n">n</option>
+                                        <option value="y">y</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label class="label">directory_read_data</label>
+                                <input type="text" id="directory_read_data" class="input" value="" placeholder="./restart">
                             </div>
                         </div>
                     </div>
@@ -547,6 +579,54 @@
                             <div>
                                 <label class="label">phi_cep1</label>
                                 <input type="text" id="phi_cep1" class="input" value="0.0">
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <label class="label">Pulse 1 Polarization `epdir_re1(1:3)`</label>
+                            <div class="grid grid-3 gap-2">
+                                <input type="text" id="epdir_re1_x" class="input" value="1.0" placeholder="x">
+                                <input type="text" id="epdir_re1_y" class="input" value="0.0" placeholder="y">
+                                <input type="text" id="epdir_re1_z" class="input" value="0.0" placeholder="z">
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <h3 class="section-subtitle">Pulse 2 (optional)</h3>
+                            <div class="grid grid-3 gap-4 mb-4">
+                                <div>
+                                    <label class="label">ae_shape2</label>
+                                    <select id="ae_shape2" class="select">
+                                        <option value=""></option>
+                                        <option value="Acos2">Acos2</option>
+                                        <option value="Ecos2">Ecos2</option>
+                                        <option value="impulse">impulse</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="label">I_wcm2_2</label>
+                                    <input type="text" id="I_wcm2_2" class="input" value="">
+                                </div>
+                                <div>
+                                    <label class="label">omega2</label>
+                                    <input type="text" id="omega2" class="input" value="">
+                                </div>
+                            </div>
+                            <div class="grid grid-2 gap-4">
+                                <div>
+                                    <label class="label">tw2</label>
+                                    <input type="text" id="tw2" class="input" value="">
+                                </div>
+                                <div>
+                                    <label class="label">phi_cep2</label>
+                                    <input type="text" id="phi_cep2" class="input" value="0.0">
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label class="label">Pulse 2 Polarization `epdir_re2(1:3)`</label>
+                                <div class="grid grid-3 gap-2">
+                                    <input type="text" id="epdir_re2_x" class="input" value="1.0" placeholder="x">
+                                    <input type="text" id="epdir_re2_y" class="input" value="0.0" placeholder="y">
+                                    <input type="text" id="epdir_re2_z" class="input" value="0.0" placeholder="z">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -804,25 +884,72 @@
             'Br': 35, 'Kr': 36
         };
 
-        const ANALYSIS_FIELDS = [
-            { id: 'yn_out_dns', label: 'yn_out_dns', kind: 'select', options: ['y', 'n'], defaultValue: 'y', quoted: true },
-            { id: 'projection_option', label: 'projection_option', kind: 'select', options: ['no', 'gs'], defaultValue: 'no', quoted: true },
-            { id: 'out_projection_step', label: 'out_projection_step', kind: 'text', defaultValue: '100' },
-            { id: 'threshold_projection', label: 'threshold_projection', kind: 'text', defaultValue: '1e-6' },
-            { id: 'yn_out_intraband_current', label: 'yn_out_intraband_current', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
-            { id: 'nenergy', label: 'nenergy', kind: 'text', defaultValue: '' },
-            { id: 'de', label: 'de', kind: 'text', defaultValue: '' },
-            { id: 'out_rt_energy_step', label: 'out_rt_energy_step', kind: 'text', defaultValue: '10' },
-            { id: 'yn_out_rt_energy_components', label: 'yn_out_rt_energy_components', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
-            { id: 'yn_out_dns_rt', label: 'yn_out_dns_rt', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
-            { id: 'out_dns_rt_step', label: 'out_dns_rt_step', kind: 'text', defaultValue: '50' },
-            { id: 'yn_out_dns_ac_je', label: 'yn_out_dns_ac_je', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
-            { id: 'out_dns_ac_je_step', label: 'out_dns_ac_je_step', kind: 'text', defaultValue: '50' },
-            { id: 'yn_out_micro_je', label: 'yn_out_micro_je', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
-            { id: 'out_micro_je_step', label: 'out_micro_je_step', kind: 'text', defaultValue: '100' },
-            { id: 'yn_out_current_decomposed', label: 'yn_out_current_decomposed', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
-            { id: 'out_current_decomposed_step', label: 'out_current_decomposed_step', kind: 'text', defaultValue: '100' }
-        ];
+        // The keyword registry is the manual-aligned extension point for new SALMON input keywords.
+        const keywordRegistry = {
+            control: {
+                sysname: { label: 'sysname', kind: 'text', defaultValue: 'salmon_gs', quoted: true, alwaysOutput: true },
+                yn_restart: { label: 'yn_restart', kind: 'select', options: ['n', 'y'], defaultValue: 'n', quoted: true },
+                directory_read_data: { label: 'directory_read_data', kind: 'text', defaultValue: '', quoted: true, outputIf: (value) => value !== '' }
+            },
+            system: {
+                yn_periodic: { label: 'yn_periodic', kind: 'select', options: ['y', 'n'], defaultValue: 'y', quoted: true, alwaysOutput: true },
+                nelec: { label: 'nelec', kind: 'text', defaultValue: '0', alwaysOutput: true },
+                nstate: { label: 'nstate', kind: 'text', defaultValue: '0', alwaysOutput: true },
+                temperature_k: { label: 'temperature_k', kind: 'text', defaultValue: '-1.0', alwaysOutput: true }
+            },
+            parallel: {
+                nproc_k: { label: 'nproc_k', kind: 'text', defaultValue: '1', alwaysOutput: true },
+                nproc_ob: { label: 'nproc_ob', kind: 'text', defaultValue: '1', alwaysOutput: true },
+                nproc_rgrid: { label: 'nproc_rgrid', kind: 'array', indices: '(1:3)', alwaysOutput: true }
+            },
+            scf: {
+                nscf: { label: 'nscf', kind: 'text', defaultValue: '300', alwaysOutput: true },
+                threshold: { label: 'threshold', kind: 'text', defaultValue: '1.0d-9', alwaysOutput: true }
+            },
+            rgrid: {
+                num_rgrid: { label: 'num_rgrid', kind: 'array', indices: '(1:3)', alwaysOutput: true }
+            },
+            kgrid: {
+                num_kgrid: { label: 'num_kgrid', kind: 'array', indices: '(1:3)', alwaysOutput: true }
+            },
+            singlescale: {
+                method_singlescale: { label: 'method_singlescale', kind: 'text', defaultValue: '3d', quoted: true, alwaysOutput: true }
+            },
+            multiscale: {
+                fdtddim: { label: 'fdtddim', kind: 'text', defaultValue: '1d', alwaysOutput: true },
+                nx_m: { label: 'nx_m', kind: 'text', defaultValue: '1', alwaysOutput: true },
+                ny_m: { label: 'ny_m', kind: 'text', defaultValue: '1', alwaysOutput: true },
+                nz_m: { label: 'nz_m', kind: 'text', defaultValue: '1', alwaysOutput: true },
+                hx_m: { label: 'hx_m', kind: 'text', defaultValue: '0.0', alwaysOutput: true },
+                hy_m: { label: 'hy_m', kind: 'text', defaultValue: '0.0', alwaysOutput: true },
+                hz_m: { label: 'hz_m', kind: 'text', defaultValue: '0.0', alwaysOutput: true },
+                nxvacl_m: { label: 'nxvacl_m', kind: 'text', defaultValue: '0', outputIf: (value) => safeParseInt(value, 0) > 0 },
+                nxvacr_m: { label: 'nxvacr_m', kind: 'text', defaultValue: '0', outputIf: (value) => safeParseInt(value, 0) > 0 }
+            },
+            maxwell: {
+                boundary_em_1_1: { label: 'boundary_em(1,1)', kind: 'text', defaultValue: 'abc', quoted: true, outputIf: (value) => value !== '' },
+                boundary_em_1_2: { label: 'boundary_em(1,2)', kind: 'text', defaultValue: 'abc', quoted: true, outputIf: (value) => value !== '' }
+            },
+            analysis: {
+                yn_out_dns: { label: 'yn_out_dns', kind: 'select', options: ['y', 'n'], defaultValue: 'y', quoted: true, alwaysOutput: true },
+                projection_option: { label: 'projection_option', kind: 'select', options: ['no', 'gs'], defaultValue: 'no', quoted: true },
+                out_projection_step: { label: 'out_projection_step', kind: 'text', defaultValue: '100' },
+                threshold_projection: { label: 'threshold_projection', kind: 'text', defaultValue: '1e-6' },
+                yn_out_intraband_current: { label: 'yn_out_intraband_current', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+                nenergy: { label: 'nenergy', kind: 'text', defaultValue: '' },
+                de: { label: 'de', kind: 'text', defaultValue: '' },
+                out_rt_energy_step: { label: 'out_rt_energy_step', kind: 'text', defaultValue: '10' },
+                yn_out_rt_energy_components: { label: 'yn_out_rt_energy_components', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+                yn_out_dns_rt: { label: 'yn_out_dns_rt', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+                out_dns_rt_step: { label: 'out_dns_rt_step', kind: 'text', defaultValue: '50' },
+                yn_out_dns_ac_je: { label: 'yn_out_dns_ac_je', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+                out_dns_ac_je_step: { label: 'out_dns_ac_je_step', kind: 'text', defaultValue: '50' },
+                yn_out_micro_je: { label: 'yn_out_micro_je', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+                out_micro_je_step: { label: 'out_micro_je_step', kind: 'text', defaultValue: '100' },
+                yn_out_current_decomposed: { label: 'yn_out_current_decomposed', kind: 'select', options: ['y', 'n'], defaultValue: 'n', quoted: true },
+                out_current_decomposed_step: { label: 'out_current_decomposed_step', kind: 'text', defaultValue: '100' }
+            }
+        };
 
         const templates = {
             'bulk-gs': {
@@ -1175,7 +1302,11 @@
         let structureViewer = null;
         let currentTemplateName = '';
         let currentTemplateSource = 'manual';
+        let pendingUploadedInputState = null;
+        let defaultCanonicalState = null;
+        globalThis.pendingUploadedInputState = pendingUploadedInputState;
         globalThis.state = state;
+        globalThis.keywordRegistry = keywordRegistry;
 
         // Utility functions
         function safeParseFloat(value, defaultValue = 0) {
@@ -1208,6 +1339,10 @@
             return theory === 'tddft_response';
         }
 
+        function getRegistryEntries(sectionName) {
+            return Object.entries(keywordRegistry[sectionName] || {}).map(([id, config]) => ({ id, ...config }));
+        }
+
         function vectorMagnitude(vector) {
             return Math.sqrt(vector.reduce((sum, value) => sum + safeParseFloat(value) ** 2, 0));
         }
@@ -1229,6 +1364,14 @@
                     document.getElementById('al_vec3_y').value,
                     document.getElementById('al_vec3_z').value
                 ])
+            ];
+        }
+
+        function getCurrentLatticeVector(prefix) {
+            return [
+                safeParseFloat(document.getElementById(`${prefix}_x`).value, 0),
+                safeParseFloat(document.getElementById(`${prefix}_y`).value, 0),
+                safeParseFloat(document.getElementById(`${prefix}_z`).value, 0)
             ];
         }
 
@@ -1908,9 +2051,10 @@
 
         function renderAnalysisFields() {
             const container = document.getElementById('analysisFields');
+            const analysisFields = getRegistryEntries('analysis');
             container.innerHTML = `
                 <div class="grid grid-2 gap-4">
-                    ${ANALYSIS_FIELDS.map((field) => {
+                    ${analysisFields.map((field) => {
                         if (field.kind === 'select') {
                             return `
                                 <div>
@@ -2010,21 +2154,45 @@
             updatePreview();
         }
 
+        function calculateCellParametersFromLatticeVectors(v1, v2, v3) {
+            const magnitude = (vector) => Math.sqrt(vector.reduce((sum, value) => sum + value * value, 0));
+            const dot = (u, v) => u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
+            const cross = (u, v) => [
+                u[1] * v[2] - u[2] * v[1],
+                u[2] * v[0] - u[0] * v[2],
+                u[0] * v[1] - u[1] * v[0]
+            ];
+            const a = magnitude(v1);
+            const b = magnitude(v2);
+            const c = magnitude(v3);
+            const clamp = (value) => Math.max(-1, Math.min(1, value));
+            const alpha = b > 0 && c > 0 ? Math.acos(clamp(dot(v2, v3) / (b * c))) * 180 / Math.PI : 90;
+            const beta = a > 0 && c > 0 ? Math.acos(clamp(dot(v1, v3) / (a * c))) * 180 / Math.PI : 90;
+            const gamma = a > 0 && b > 0 ? Math.acos(clamp(dot(v1, v2) / (a * b))) * 180 / Math.PI : 90;
+            const volume = Math.abs(dot(v1, cross(v2, v3)));
+            return { a, b, c, alpha, beta, gamma, volume };
+        }
+
         function updateCellInfo() {
             const container = document.getElementById('cellInfo');
-            if (cellInfo) {
+            const derivedCellInfo = cellInfo || calculateCellParametersFromLatticeVectors(
+                getCurrentLatticeVector('al_vec1'),
+                getCurrentLatticeVector('al_vec2'),
+                getCurrentLatticeVector('al_vec3')
+            );
+            if (derivedCellInfo) {
                 container.className = 'info-box info-box-info mb-4';
                 container.innerHTML = `
                     <h3 class="font-medium mb-2">Cell Parameters</h3>
                     <div class="grid grid-2 gap-2 text-sm">
-                        <div>a = ${cellInfo.a.toFixed(3)} Å</div>
-                        <div>α = ${cellInfo.alpha.toFixed(1)}°</div>
-                        <div>b = ${cellInfo.b.toFixed(3)} Å</div>
-                        <div>β = ${cellInfo.beta.toFixed(1)}°</div>
-                        <div>c = ${cellInfo.c.toFixed(3)} Å</div>
-                        <div>γ = ${cellInfo.gamma.toFixed(1)}°</div>
+                        <div>a = ${derivedCellInfo.a.toFixed(3)} Å</div>
+                        <div>α = ${derivedCellInfo.alpha.toFixed(1)}°</div>
+                        <div>b = ${derivedCellInfo.b.toFixed(3)} Å</div>
+                        <div>β = ${derivedCellInfo.beta.toFixed(1)}°</div>
+                        <div>c = ${derivedCellInfo.c.toFixed(3)} Å</div>
+                        <div>γ = ${derivedCellInfo.gamma.toFixed(1)}°</div>
                     </div>
-                    ${cellInfo.volume ? `<div class="mt-2 text-sm">Volume = ${cellInfo.volume.toFixed(2)} Å³</div>` : ''}
+                    ${derivedCellInfo.volume ? `<div class="mt-2 text-sm">Volume = ${derivedCellInfo.volume.toFixed(2)} Å³</div>` : ''}
                 `;
             } else {
                 container.className = 'hidden';
@@ -2163,7 +2331,9 @@
                     unit_system: 'A_eV_fs'
                 },
                 control: {
-                    sysname: 'salmon_gs'
+                    sysname: document.getElementById('sysname').value || keywordRegistry.control.sysname.defaultValue,
+                    yn_restart: document.getElementById('yn_restart').value,
+                    directory_read_data: document.getElementById('directory_read_data').value
                 },
                 parallel: {
                     nproc_k: document.getElementById('nproc_k').value,
@@ -2226,9 +2396,24 @@
                     omega1: document.getElementById('omega1').value,
                     tw1: document.getElementById('tw1').value,
                     phi_cep1: document.getElementById('phi_cep1').value,
+                    epdir_re1: [
+                        document.getElementById('epdir_re1_x').value,
+                        document.getElementById('epdir_re1_y').value,
+                        document.getElementById('epdir_re1_z').value
+                    ],
+                    ae_shape2: document.getElementById('ae_shape2').value,
+                    I_wcm2_2: document.getElementById('I_wcm2_2').value,
+                    omega2: document.getElementById('omega2').value,
+                    tw2: document.getElementById('tw2').value,
+                    phi_cep2: document.getElementById('phi_cep2').value,
+                    epdir_re2: [
+                        document.getElementById('epdir_re2_x').value,
+                        document.getElementById('epdir_re2_y').value,
+                        document.getElementById('epdir_re2_z').value
+                    ],
                     yn_out_dns: document.getElementById('yn_out_dns').value
                 },
-                analysis: Object.fromEntries(ANALYSIS_FIELDS.map((field) => [field.id, document.getElementById(field.id).value])),
+                analysis: Object.fromEntries(getRegistryEntries('analysis').map((field) => [field.id, document.getElementById(field.id).value])),
                 maxwell: {
                     method_singlescale: document.getElementById('method_singlescale').value,
                     fdtddim: document.getElementById('fdtddim').value,
@@ -2269,7 +2454,9 @@
                     source: state.metadata?.source || 'manual'
                 },
                 control: {
-                    sysname: state.control?.sysname || 'salmon_gs'
+                    sysname: state.control?.sysname || keywordRegistry.control.sysname.defaultValue,
+                    yn_restart: state.control?.yn_restart || keywordRegistry.control.yn_restart.defaultValue,
+                    directory_read_data: state.control?.directory_read_data || ''
                 },
                 units: {
                     unit_system: state.units?.unit_system || state.calculation?.unit_system || 'A_eV_fs'
@@ -2317,7 +2504,14 @@
                 rt: {
                     ...state.rt,
                     nt: safeParseInt(state.rt.nt, 0),
-                    dt: safeParseFloat(state.rt.dt, 0)
+                    dt: safeParseFloat(state.rt.dt, 0),
+                    epdir_re1: (state.rt.epdir_re1 || ['1.0', '0.0', '0.0']).map((value) => safeParseFloat(value, 0)),
+                    ae_shape2: state.rt.ae_shape2 || '',
+                    I_wcm2_2: state.rt.I_wcm2_2 || '',
+                    omega2: state.rt.omega2 || '',
+                    tw2: state.rt.tw2 || '',
+                    phi_cep2: state.rt.phi_cep2 || '0.0',
+                    epdir_re2: (state.rt.epdir_re2 || ['1.0', '0.0', '0.0']).map((value) => safeParseFloat(value, 0))
                 },
                 analysis: {
                     ...state.analysis
@@ -2366,6 +2560,270 @@
             state = normalizeState(readFormState());
             globalThis.state = state;
             return state;
+        }
+
+        function getUploadSectionDefinitions() {
+            return {
+                calculation: { keys: ['theory'] },
+                control: { keys: ['sysname', 'yn_restart', 'directory_read_data'] },
+                parallel: { keys: ['nproc_k', 'nproc_ob', 'nproc_rgrid'] },
+                system: { keys: ['yn_periodic', 'al', 'al_vec1', 'al_vec2', 'al_vec3', 'nelec', 'nstate', 'temperature_k', 'nelem', 'natom'] },
+                rgrid: { keys: ['num_rgrid'] },
+                kgrid: { keys: ['num_kgrid'] },
+                scf: { keys: ['nscf', 'threshold'] },
+                tgrid: { keys: ['nt', 'dt'] },
+                propagation: { keys: ['propagator'] },
+                emfield: { keys: ['trans_longi', 'ae_shape1', 'I_wcm2_1', 'omega1', 'tw1', 'phi_cep1', 'epdir_re1', 'ae_shape2', 'I_wcm2_2', 'omega2', 'tw2', 'phi_cep2', 'epdir_re2'] },
+                analysis: { keys: getRegistryEntries('analysis').map((entry) => entry.id) },
+                singlescale: { keys: ['method_singlescale'] },
+                multiscale: { keys: ['fdtddim', 'nx_m', 'ny_m', 'nz_m', 'hx_m', 'hy_m', 'hz_m', 'nxvacl_m', 'nxvacr_m'] },
+                maxwell: { keys: ['boundary_em_1_1', 'boundary_em_1_2'] },
+                atomic_red_coor: { keys: ['__atoms__'] },
+                atomic_coor: { keys: ['__atoms__'] },
+                pseudo: { keys: ['file_pseudo', 'izatom', 'lloc_ps', 'lmax_ps'] }
+            };
+        }
+
+        function normalizeParsedScalar(value) {
+            const trimmed = value.trim();
+            if ((trimmed.startsWith("'") && trimmed.endsWith("'")) || (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+                return trimmed.slice(1, -1);
+            }
+            return trimmed;
+        }
+
+        function normalizeParsedKey(rawKey) {
+            const trimmed = rawKey.trim();
+            if (trimmed === 'boundary_em(1,1)') return 'boundary_em_1_1';
+            if (trimmed === 'boundary_em(1,2)') return 'boundary_em_1_2';
+            return trimmed.replace(/\(1:3\)$/, '').replace(/\(3\)$/, '');
+        }
+
+        function extractIndexedAssignment(rawKey) {
+            const trimmed = rawKey.trim();
+            const match = trimmed.match(/^([A-Za-z_][A-Za-z0-9_]*?)\((\d+)\)$/);
+            if (!match) {
+                return null;
+            }
+            return {
+                key: match[1],
+                index: safeParseInt(match[2], 1) - 1
+            };
+        }
+
+        function parseNamelistInput(text) {
+            const definitions = getUploadSectionDefinitions();
+            const parsed = {
+                sections: {},
+                unsupportedKeywords: [],
+                unsupportedSections: [],
+                parseErrors: []
+            };
+            let currentSection = null;
+            text.split(/\r?\n/).forEach((rawLine) => {
+                const line = rawLine.replace(/!.*$/, '').trim();
+                if (!line) return;
+                if (line.startsWith('&')) {
+                    const sectionName = line.slice(1).trim().toLowerCase();
+                    currentSection = sectionName;
+                    if (!definitions[sectionName]) {
+                        parsed.unsupportedSections.push({ section: sectionName });
+                    } else if (!parsed.sections[sectionName]) {
+                        parsed.sections[sectionName] = sectionName === 'atomic_red_coor' || sectionName === 'atomic_coor' ? [] : {};
+                    }
+                    return;
+                }
+                if (line === '/') {
+                    currentSection = null;
+                    return;
+                }
+                if (!currentSection || !definitions[currentSection]) {
+                    return;
+                }
+                if (currentSection === 'atomic_red_coor' || currentSection === 'atomic_coor') {
+                    const match = line.match(/^['"]?([A-Za-z][A-Za-z]?)['"]?\s+(.+)$/);
+                    if (!match) {
+                        parsed.parseErrors.push({ section: currentSection, line: rawLine });
+                        return;
+                    }
+                    const tokens = match[2].trim().split(/\s+/);
+                    parsed.sections[currentSection].push({
+                        element: match[1],
+                        x: tokens[0],
+                        y: tokens[1],
+                        z: tokens[2],
+                        type: tokens[3] || '1'
+                    });
+                    return;
+                }
+                const assignmentMatch = line.match(/^([^=]+)=(.+)$/);
+                if (!assignmentMatch) {
+                    parsed.parseErrors.push({ section: currentSection, line: rawLine });
+                    return;
+                }
+                const indexedAssignment = extractIndexedAssignment(assignmentMatch[1]);
+                const key = indexedAssignment ? indexedAssignment.key : normalizeParsedKey(assignmentMatch[1]);
+                const valueText = assignmentMatch[2].trim();
+                if (!definitions[currentSection].keys.includes(key)) {
+                    parsed.unsupportedKeywords.push({ section: currentSection, keyword: key });
+                    return;
+                }
+                const values = valueText.split(',').map((value) => normalizeParsedScalar(value));
+                if (indexedAssignment && currentSection === 'pseudo') {
+                    if (!Array.isArray(parsed.sections[currentSection][key])) {
+                        parsed.sections[currentSection][key] = [];
+                    }
+                    parsed.sections[currentSection][key][indexedAssignment.index] = values.length > 1 ? values : values[0];
+                } else {
+                    parsed.sections[currentSection][key] = values.length > 1 ? values : values[0];
+                }
+            });
+            return parsed;
+        }
+
+        function buildStateFromParsedNamelist(parsed) {
+            const baseState = JSON.parse(JSON.stringify(defaultCanonicalState || buildCanonicalState()));
+            const nextState = JSON.parse(JSON.stringify(baseState));
+            const sections = parsed.sections || {};
+
+            if (sections.calculation?.theory) nextState.calculation.theory = sections.calculation.theory;
+            if (sections.control) {
+                Object.assign(nextState.control, sections.control);
+            }
+            if (sections.parallel) {
+                if (sections.parallel.nproc_k !== undefined) nextState.parallel.nproc_k = sections.parallel.nproc_k;
+                if (sections.parallel.nproc_ob !== undefined) nextState.parallel.nproc_ob = sections.parallel.nproc_ob;
+                if (sections.parallel.nproc_rgrid !== undefined) nextState.parallel.nproc_rgrid = sections.parallel.nproc_rgrid;
+            }
+            if (sections.system) {
+                Object.assign(nextState.system, sections.system);
+                if (sections.system.al) {
+                    nextState.system.al_vec1 = [sections.system.al[0], '0.0', '0.0'];
+                    nextState.system.al_vec2 = ['0.0', sections.system.al[1], '0.0'];
+                    nextState.system.al_vec3 = ['0.0', '0.0', sections.system.al[2]];
+                }
+            }
+            if (sections.rgrid?.num_rgrid) nextState.grid.num_rgrid = sections.rgrid.num_rgrid;
+            if (sections.kgrid?.num_kgrid) nextState.grid.num_kgrid = sections.kgrid.num_kgrid;
+            if (sections.scf) Object.assign(nextState.scf, sections.scf);
+            if (sections.tgrid) {
+                if (sections.tgrid.nt !== undefined) nextState.rt.nt = sections.tgrid.nt;
+                if (sections.tgrid.dt !== undefined) nextState.rt.dt = sections.tgrid.dt;
+            }
+            if (sections.propagation?.propagator !== undefined) nextState.rt.propagator = sections.propagation.propagator;
+            if (sections.emfield) Object.assign(nextState.rt, sections.emfield);
+            if (sections.analysis) Object.assign(nextState.analysis, sections.analysis);
+            if (sections.singlescale?.method_singlescale !== undefined) nextState.maxwell.method_singlescale = sections.singlescale.method_singlescale;
+            if (sections.multiscale) {
+                ['fdtddim', 'nx_m', 'ny_m', 'nz_m', 'hx_m', 'hy_m', 'hz_m'].forEach((key) => {
+                    if (sections.multiscale[key] !== undefined) nextState.maxwell[key] = sections.multiscale[key];
+                });
+                ['nxvacl_m', 'nxvacr_m'].forEach((key) => {
+                    if (sections.multiscale[key] !== undefined) nextState.multiscale[key] = sections.multiscale[key];
+                });
+            }
+            if (sections.maxwell) Object.assign(nextState.multiscale, sections.maxwell);
+            if (sections.atomic_red_coor) {
+                nextState.system.atomic_coordinate_mode = 'fractional';
+                nextState.atoms = sections.atomic_red_coor.map((atom) => ({ ...atom }));
+            } else if (sections.atomic_coor) {
+                nextState.system.atomic_coordinate_mode = 'cartesian';
+                nextState.atoms = sections.atomic_coor.map((atom) => ({ ...atom }));
+            }
+            if (sections.pseudo) {
+                const filePseudo = sections.pseudo.file_pseudo || [];
+                const izatom = sections.pseudo.izatom || [];
+                const llocPs = sections.pseudo.lloc_ps || [];
+                const lmaxPs = sections.pseudo.lmax_ps || [];
+                const pseudoCount = Math.max(filePseudo.length, izatom.length, llocPs.length, lmaxPs.length, nextState.pseudo.length);
+                nextState.pseudo = Array.from({ length: pseudoCount }, (_, index) => ({
+                    element: nextState.pseudo[index]?.element || nextState.atoms[index]?.element || `E${index + 1}`,
+                    type: nextState.pseudo[index]?.type || index + 1,
+                    izatom: izatom[index] ?? nextState.pseudo[index]?.izatom ?? '',
+                    file_pseudo: filePseudo[index] ?? nextState.pseudo[index]?.file_pseudo ?? '',
+                    lloc_ps: llocPs[index] ?? nextState.pseudo[index]?.lloc_ps ?? '',
+                    lmax_ps: lmaxPs[index] ?? nextState.pseudo[index]?.lmax_ps ?? ''
+                }));
+            }
+            return nextState;
+        }
+
+        function validateUploadedInput(text) {
+            const parsed = parseNamelistInput(text);
+            const derivedState = buildStateFromParsedNamelist(parsed);
+            const normalizedState = normalizeState(derivedState);
+            const validation = validateInput(normalizedState);
+            const warnings = [...validation.warnings];
+            const errors = [...validation.errors];
+            const pseudoTypes = new Set((normalizedState.pseudo || []).map((entry) => safeParseInt(entry.type, 0)).filter((value) => value > 0));
+            const atomTypes = new Set((normalizedState.atoms || []).map((entry) => safeParseInt(entry.type, 0)).filter((value) => value > 0));
+            atomTypes.forEach((type) => {
+                if (!pseudoTypes.has(type)) {
+                    errors.push({
+                        code: 'ATOM_TYPE_MISMATCH',
+                        message: `Atomic coordinate type ${type} has no matching pseudo entry.`,
+                        field: 'atoms.type'
+                    });
+                }
+            });
+            const declaredNelem = safeParseInt(normalizedState.system?.nelem, 0);
+            if (declaredNelem > 0 && normalizedState.pseudo.length !== declaredNelem) {
+                warnings.push({
+                    code: 'PSEUDO_NELEM_MISMATCH',
+                    message: `Pseudo entry count (${normalizedState.pseudo.length}) does not match nelem (${declaredNelem}).`,
+                    field: 'system.nelem'
+                });
+            }
+            parsed.unsupportedKeywords.forEach((entry) => {
+                warnings.push({
+                    code: 'UNSUPPORTED_KEYWORD',
+                    message: `Unsupported keyword in uploaded input: ${entry.section}.${entry.keyword}`,
+                    field: `${entry.section}.${entry.keyword}`
+                });
+            });
+            parsed.unsupportedSections.forEach((entry) => {
+                warnings.push({
+                    code: 'UNSUPPORTED_SECTION',
+                    message: `Unsupported namelist section in uploaded input: ${entry.section}`,
+                    field: entry.section
+                });
+            });
+            parsed.parseErrors.forEach((entry) => {
+                warnings.push({
+                    code: 'PARSE_WARNING',
+                    message: `Could not fully parse line in section ${entry.section}.`,
+                    field: entry.section
+                });
+            });
+            return {
+                parsed,
+                state: derivedState,
+                errors,
+                warnings,
+                suggestions: validation.suggestions
+            };
+        }
+
+        function renderUploadedInputValidation(result, filename = '') {
+            const statusDiv = document.getElementById('salmonInputStatus');
+            const loadButton = document.getElementById('loadInputToFormButton');
+            const heading = filename ? `Parsed ${filename}.` : 'Parsed uploaded SALMON input.';
+            statusDiv.innerHTML = `
+                <div class="info-box ${result.errors.length ? 'info-box-error' : result.warnings.length ? 'info-box-warning' : 'info-box-success'}">
+                    <div class="font-medium mb-2">${heading}</div>
+                    <div>Errors: ${result.errors.length} | Warnings: ${result.warnings.length} | Suggestions: ${result.suggestions.length}</div>
+                </div>
+            `;
+            loadButton.disabled = !result.state || result.errors.some((entry) => entry.code === 'PARSE_FATAL');
+        }
+
+        function loadUploadedInputToForm() {
+            const nextState = globalThis.pendingUploadedInputState || pendingUploadedInputState;
+            if (!nextState) {
+                return;
+            }
+            applyStateToForm(nextState);
+            updatePreview();
         }
 
         function validateImportedJsonStructure(raw) {
@@ -2431,6 +2889,9 @@
             document.getElementById('theory').value = normalized.calculation.theory;
             document.getElementById('xc').value = normalized.functional.xc;
             document.getElementById('yn_periodic').value = normalized.system.yn_periodic;
+            document.getElementById('sysname').value = normalized.control.sysname;
+            document.getElementById('yn_restart').value = normalized.control.yn_restart;
+            document.getElementById('directory_read_data').value = normalized.control.directory_read_data;
             document.getElementById('nscf').value = String(normalized.scf.nscf);
             document.getElementById('threshold').value = normalized.scf.threshold;
             document.getElementById('nelec').value = String(normalized.system.nelec);
@@ -2456,6 +2917,17 @@
             document.getElementById('omega1').value = normalized.rt.omega1;
             document.getElementById('tw1').value = normalized.rt.tw1;
             document.getElementById('phi_cep1').value = normalized.rt.phi_cep1;
+            document.getElementById('epdir_re1_x').value = String(normalized.rt.epdir_re1[0]);
+            document.getElementById('epdir_re1_y').value = String(normalized.rt.epdir_re1[1]);
+            document.getElementById('epdir_re1_z').value = String(normalized.rt.epdir_re1[2]);
+            document.getElementById('ae_shape2').value = normalized.rt.ae_shape2;
+            document.getElementById('I_wcm2_2').value = normalized.rt.I_wcm2_2;
+            document.getElementById('omega2').value = normalized.rt.omega2;
+            document.getElementById('tw2').value = normalized.rt.tw2;
+            document.getElementById('phi_cep2').value = normalized.rt.phi_cep2;
+            document.getElementById('epdir_re2_x').value = String(normalized.rt.epdir_re2[0]);
+            document.getElementById('epdir_re2_y').value = String(normalized.rt.epdir_re2[1]);
+            document.getElementById('epdir_re2_z').value = String(normalized.rt.epdir_re2[2]);
             document.getElementById('al_vec1_x').value = String(normalized.system.al_vec1[0]);
             document.getElementById('al_vec1_y').value = String(normalized.system.al_vec1[1]);
             document.getElementById('al_vec1_z').value = String(normalized.system.al_vec1[2]);
@@ -2477,7 +2949,7 @@
             document.getElementById('nxvacr_m').value = String(normalized.multiscale.nxvacr_m);
             document.getElementById('boundary_em_1_1').value = normalized.multiscale.boundary_em_1_1;
             document.getElementById('boundary_em_1_2').value = normalized.multiscale.boundary_em_1_2;
-            ANALYSIS_FIELDS.forEach((field) => {
+            getRegistryEntries('analysis').forEach((field) => {
                 document.getElementById(field.id).value = normalized.analysis[field.id] ?? field.defaultValue;
             });
             atoms = normalized.atoms.map((atom) => ({
@@ -2497,6 +2969,8 @@
             maybeSuggestTemplate();
             updateAtomsList();
             updatePseudoList();
+            cellInfo = null;
+            updateCellInfo();
             lastLatticeLengths = getCurrentLatticeLengths();
         }
 
@@ -2667,6 +3141,21 @@
                 if (requiresPulseEnvelope && safeParseFloat(state.rt.tw1, 0) <= 0) {
                     pushError('RT_TW_INVALID', 'tw1 must be positive.', 'rt.tw1');
                 }
+                const hasPulse2 = String(state.rt.ae_shape2 || '').trim() !== '';
+                if (hasPulse2) {
+                    if (!aeShapeAllowlist.includes(state.rt.ae_shape2)) {
+                        pushError('RT_AE_SHAPE2_INVALID', 'ae_shape2 is not in the supported allowlist.', 'rt.ae_shape2');
+                    }
+                    if (safeParseFloat(state.rt.I_wcm2_2, 0) <= 0) {
+                        pushWarning('RT_INTENSITY2_NONPOSITIVE', 'I_wcm2_2 should usually be positive.', 'rt.I_wcm2_2');
+                    }
+                    if (safeParseFloat(state.rt.omega2, 0) <= 0) {
+                        pushError('RT_OMEGA2_INVALID', 'omega2 must be positive when pulse 2 is enabled.', 'rt.omega2');
+                    }
+                    if (safeParseFloat(state.rt.tw2, 0) <= 0) {
+                        pushError('RT_TW2_INVALID', 'tw2 must be positive when pulse 2 is enabled.', 'rt.tw2');
+                    }
+                }
                 if (state.rt.dt > 0.2) {
                     pushSuggestion('RT_DT_LARGE', 'dt looks large for RT. A short trial run is recommended.', 'rt.dt');
                 }
@@ -2747,7 +3236,15 @@
         }
 
         function validateInput(state) {
-            return validateState(state);
+            const result = validateState(state);
+            if (state.control?.yn_restart === 'y' && !String(state.control?.directory_read_data || '').trim()) {
+                result.errors.push({
+                    code: 'CONTROL_REQUIRED_DIRECTORY_READ_DATA',
+                    message: 'directory_read_data is required when yn_restart = y.',
+                    field: 'control.directory_read_data'
+                });
+            }
+            return result;
         }
 
         function renderValidation(result) {
@@ -2776,14 +3273,25 @@
                 : 'Download is available.';
         }
 
-        function buildAnalysisLines(state) {
-            return ANALYSIS_FIELDS
+        function buildArrayAssignment(label, values, indices = '(1:3)') {
+            return `  ${label}${indices} = ${values.join(', ')}`;
+        }
+
+        // Registry-backed namelist emission keeps manual-aligned keyword handling in one place.
+        function buildRegistryNamelistBlock(sectionName, sectionState, state) {
+            return getRegistryEntries(sectionName)
                 .map((field) => {
-                    const value = state.analysis[field.id];
+                    const value = sectionState[field.id];
                     if (value === '' || value === null || value === undefined) {
                         return null;
                     }
-                    if (field.kind === 'select' && value === field.defaultValue && field.id !== 'yn_out_dns') {
+                    if (field.outputIf && !field.outputIf(value, state)) {
+                        return null;
+                    }
+                    if (field.kind === 'array') {
+                        return buildArrayAssignment(field.label, value, field.indices || '(1:3)');
+                    }
+                    if (!field.alwaysOutput && !field.outputIf && field.kind === 'select' && value === field.defaultValue) {
                         return null;
                     }
                     const renderedValue = field.quoted ? `'${value}'` : value;
@@ -2840,6 +3348,17 @@
             document.getElementById('omega1').value = '';
             document.getElementById('tw1').value = '';
             document.getElementById('phi_cep1').value = '0.0';
+            document.getElementById('epdir_re1_x').value = '1.0';
+            document.getElementById('epdir_re1_y').value = '0.0';
+            document.getElementById('epdir_re1_z').value = '0.0';
+            document.getElementById('ae_shape2').value = '';
+            document.getElementById('I_wcm2_2').value = '';
+            document.getElementById('omega2').value = '';
+            document.getElementById('tw2').value = '';
+            document.getElementById('phi_cep2').value = '0.0';
+            document.getElementById('epdir_re2_x').value = '1.0';
+            document.getElementById('epdir_re2_y').value = '0.0';
+            document.getElementById('epdir_re2_z').value = '0.0';
             atomicCoordinateMode = template.atomic_coordinate_mode || 'fractional';
             if (template.atoms) {
                 atoms = template.atoms.map((atom) => ({ ...atom }));
@@ -2884,6 +3403,21 @@
             if (template.omega1) document.getElementById('omega1').value = template.omega1;
             if (template.tw1) document.getElementById('tw1').value = template.tw1;
             if (template.phi_cep1) document.getElementById('phi_cep1').value = template.phi_cep1;
+            if (template.epdir_re1) {
+                document.getElementById('epdir_re1_x').value = template.epdir_re1[0];
+                document.getElementById('epdir_re1_y').value = template.epdir_re1[1];
+                document.getElementById('epdir_re1_z').value = template.epdir_re1[2];
+            }
+            if (template.ae_shape2) document.getElementById('ae_shape2').value = template.ae_shape2;
+            if (template.I_wcm2_2) document.getElementById('I_wcm2_2').value = template.I_wcm2_2;
+            if (template.omega2) document.getElementById('omega2').value = template.omega2;
+            if (template.tw2) document.getElementById('tw2').value = template.tw2;
+            if (template.phi_cep2) document.getElementById('phi_cep2').value = template.phi_cep2;
+            if (template.epdir_re2) {
+                document.getElementById('epdir_re2_x').value = template.epdir_re2[0];
+                document.getElementById('epdir_re2_y').value = template.epdir_re2[1];
+                document.getElementById('epdir_re2_z').value = template.epdir_re2[2];
+            }
             if (template.fdtddim) document.getElementById('fdtddim').value = template.fdtddim;
             if (template.nx_m) document.getElementById('nx_m').value = template.nx_m;
             if (template.ny_m) document.getElementById('ny_m').value = template.ny_m;
@@ -2895,7 +3429,7 @@
             if (template.nxvacr_m) document.getElementById('nxvacr_m').value = template.nxvacr_m;
             if (template.boundary_em_1_1) document.getElementById('boundary_em_1_1').value = template.boundary_em_1_1;
             if (template.boundary_em_1_2) document.getElementById('boundary_em_1_2').value = template.boundary_em_1_2;
-            ANALYSIS_FIELDS.forEach((field) => {
+            getRegistryEntries('analysis').forEach((field) => {
                 document.getElementById(field.id).value = field.defaultValue;
             });
             if (template.analysis) {
@@ -2933,13 +3467,44 @@
                 const coord = getOutputAtom(atom, state);
                 return `  '${atom.element}' ${coord.x} ${coord.y} ${coord.z} ${atom.type}`;
             }).join('\n');
+            const controlLines = buildRegistryNamelistBlock('control', state.control, state);
+            const systemLines = buildRegistryNamelistBlock('system', {
+                yn_periodic: state.system.yn_periodic,
+                nelec: state.system.nelec,
+                nstate: state.system.nstate,
+                temperature_k: state.system.temperature_k
+            }, state);
+            const parallelLines = buildRegistryNamelistBlock('parallel', {
+                nproc_k: state.parallel.nproc_k,
+                nproc_ob: state.parallel.nproc_ob,
+                nproc_rgrid: state.parallel.nproc_rgrid
+            }, state);
+            const scfLines = buildRegistryNamelistBlock('scf', state.scf, state);
+            const rgridLines = buildRegistryNamelistBlock('rgrid', { num_rgrid: state.grid }, state);
+            const kgridLines = buildRegistryNamelistBlock('kgrid', { num_kgrid: state.kgrid }, state);
+            const singlescaleLines = buildRegistryNamelistBlock('singlescale', {
+                method_singlescale: state.singlescale.method_singlescale
+            }, state);
+            const multiscaleLines = buildRegistryNamelistBlock('multiscale', {
+                fdtddim: state.singlescale.fdtddim,
+                nx_m: state.singlescale.nx_m,
+                ny_m: state.singlescale.ny_m,
+                nz_m: state.singlescale.nz_m,
+                hx_m: state.singlescale.hx_m,
+                hy_m: state.singlescale.hy_m,
+                hz_m: state.singlescale.hz_m,
+                nxvacl_m: state.multiscale.nxvacl_m,
+                nxvacr_m: state.multiscale.nxvacr_m
+            }, state);
+            const maxwellLines = buildRegistryNamelistBlock('maxwell', state.multiscale, state);
+            const analysisLines = buildRegistryNamelistBlock('analysis', state.analysis, state);
 
             let input = `&calculation
   theory = '${state.calculation.theory}'
 /
 
 &control
-  sysname = '${state.control.sysname}'
+${controlLines}
 /
 
 &units
@@ -2947,21 +3512,16 @@
 /
 
 &parallel
-  nproc_k = ${state.parallel.nproc_k}
-  nproc_ob = ${state.parallel.nproc_ob}
-  nproc_rgrid(1:3) = ${state.parallel.nproc_rgrid.join(', ')}
+${parallelLines}
 /
 
 &system
-  yn_periodic = '${state.system.yn_periodic}'
   al_vec1(1:3) = ${state.system.al_vec1.join(', ')}
   al_vec2(1:3) = ${state.system.al_vec2.join(', ')}
   al_vec3(1:3) = ${state.system.al_vec3.join(', ')}
   nelem = ${state.system.nelem}
   natom = ${state.system.natom}
-  nelec = ${state.system.nelec}
-  nstate = ${state.system.nstate}
-  temperature_k = ${state.system.temperature_k}
+${systemLines}
 /
 
 &pseudo
@@ -2976,24 +3536,21 @@ ${pseudoEntries.map((pseudo, i) => `  lmax_ps(${i + 1}) = ${pseudo.lmax_ps}`).jo
 /
 
 &rgrid
-  num_rgrid(1:3) = ${state.grid.join(', ')}
+${rgridLines}
 /
 
 &kgrid
-  num_kgrid(1:3) = ${state.kgrid.join(', ')}
+${kgridLines}
 /
 
 &scf
-  nscf = ${state.scf.nscf}
-  threshold = ${state.scf.threshold}
+${scfLines}
 /
 
 &${atomicSectionName}
 ${atomicLines}
 /
 `;
-
-            const analysisLines = buildAnalysisLines(state);
 
             if (isRTTheory(state.calculation.theory)) {
                 input += `
@@ -3010,6 +3567,14 @@ ${atomicLines}
   omega1 = ${state.rt.omega1}
   tw1 = ${state.rt.tw1}
   phi_cep1 = ${state.rt.phi_cep1}
+  epdir_re1(1:3) = ${state.rt.epdir_re1.join(', ')}
+${String(state.rt.ae_shape2 || '').trim() !== '' ? `  ae_shape2 = '${state.rt.ae_shape2}'
+  I_wcm2_2 = ${state.rt.I_wcm2_2}
+  omega2 = ${state.rt.omega2}
+  tw2 = ${state.rt.tw2}
+  phi_cep2 = ${state.rt.phi_cep2}
+  epdir_re2(1:3) = ${state.rt.epdir_re2.join(', ')}
+` : ''}
 /
 `;
                 if (!isLinearResponseTheory(state.calculation.theory) && state.calculation.theory !== 'dft') {
@@ -3038,17 +3603,11 @@ ${analysisLines}
                 input += `
 
 &singlescale
-  method_singlescale = '${state.singlescale.method_singlescale}'
+${singlescaleLines}
 /
 
 &multiscale
-  fdtddim = ${state.singlescale.fdtddim}
-  nx_m = ${state.singlescale.nx_m}
-  ny_m = ${state.singlescale.ny_m}
-  nz_m = ${state.singlescale.nz_m}
-  hx_m = ${state.singlescale.hx_m}
-  hy_m = ${state.singlescale.hy_m}
-  hz_m = ${state.singlescale.hz_m}
+${multiscaleLines}
 /
 `;
             }
@@ -3057,19 +3616,11 @@ ${analysisLines}
                 input += `
 
 &multiscale
-  nx_m = ${state.singlescale.nx_m}
-  ny_m = ${state.singlescale.ny_m}
-  nz_m = ${state.singlescale.nz_m}
-  hx_m = ${state.singlescale.hx_m}
-  hy_m = ${state.singlescale.hy_m}
-  hz_m = ${state.singlescale.hz_m}
-  nxvacl_m = ${state.multiscale.nxvacl_m}
-  nxvacr_m = ${state.multiscale.nxvacr_m}
+${multiscaleLines}
 /
 
 &maxwell
-  boundary_em(1,1) = '${state.multiscale.boundary_em_1_1}'
-  boundary_em(1,2) = '${state.multiscale.boundary_em_1_2}'
+${maxwellLines}
 /
 `;
             }
@@ -3198,6 +3749,27 @@ ${analysisLines}
             event.target.value = '';
         });
 
+        document.getElementById('salmonInputUpload').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            const statusDiv = document.getElementById('salmonInputStatus');
+            const loadButton = document.getElementById('loadInputToFormButton');
+            pendingUploadedInputState = null;
+            globalThis.pendingUploadedInputState = null;
+            loadButton.disabled = true;
+            if (!file) return;
+            try {
+                const text = await file.text();
+                const result = validateUploadedInput(text);
+                pendingUploadedInputState = result.state;
+                globalThis.pendingUploadedInputState = result.state;
+                renderUploadedInputValidation(result, file.name);
+            } catch (error) {
+                statusDiv.textContent = `Could not parse ${file.name}: ${error.message}`;
+            } finally {
+                event.target.value = '';
+            }
+        });
+
         document.getElementById('cifInput').addEventListener('change', async (event) => {
             const file = event.target.files[0];
             const statusDiv = document.getElementById('cifStatus');
@@ -3252,6 +3824,8 @@ ${analysisLines}
                 
             } catch (error) {
                 statusDiv.innerHTML = `<div class="info-box info-box-error">Error parsing CIF file: ${error.message}</div>`;
+            } finally {
+                event.target.value = '';
             }
         });
 
@@ -3266,15 +3840,19 @@ ${analysisLines}
             updatePseudoList();
             updateCellInfo();
             lastLatticeLengths = getCurrentLatticeLengths();
+            defaultCanonicalState = JSON.parse(JSON.stringify(buildCanonicalState()));
+            globalThis.defaultCanonicalState = defaultCanonicalState;
             maybeSuggestTemplate();
             updatePreview();
             
             // Add event listeners for real-time updates
-            const inputs = ['theory', 'xc', 'yn_periodic', 'nscf', 'threshold', 'nelec', 'nstate', 'temperature_k',
+            const inputs = ['theory', 'xc', 'yn_periodic', 'sysname', 'yn_restart', 'directory_read_data', 'nscf', 'threshold', 'nelec', 'nstate', 'temperature_k',
                            'rgrid_x', 'rgrid_y', 'rgrid_z', 'kgrid_x', 'kgrid_y', 'kgrid_z',
                            'nproc_k', 'nproc_ob', 'nproc_rgrid_x', 'nproc_rgrid_y', 'nproc_rgrid_z',
                            'nt', 'dt', 'propagator', 'trans_longi', 'ae_shape1', 'I_wcm2_1', 'omega1', 'tw1',
-                           'phi_cep1', 'yn_out_dns', 'projection_option', 'out_projection_step', 'threshold_projection',
+                           'phi_cep1', 'epdir_re1_x', 'epdir_re1_y', 'epdir_re1_z',
+                           'ae_shape2', 'I_wcm2_2', 'omega2', 'tw2', 'phi_cep2', 'epdir_re2_x', 'epdir_re2_y', 'epdir_re2_z',
+                           'yn_out_dns', 'projection_option', 'out_projection_step', 'threshold_projection',
                            'yn_out_intraband_current', 'nenergy', 'de', 'out_rt_energy_step', 'yn_out_rt_energy_components',
                            'yn_out_dns_rt', 'out_dns_rt_step', 'yn_out_dns_ac_je', 'out_dns_ac_je_step', 'yn_out_micro_je',
                            'out_micro_je_step', 'yn_out_current_decomposed', 'out_current_decomposed_step',
