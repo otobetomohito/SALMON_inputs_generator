@@ -2839,11 +2839,37 @@
             if (!raw.metadata || !raw.metadata.schema_version) {
                 return { valid: false, error: 'metadata.schema_version is required.' };
             }
+            const schemaVersion = String(raw.metadata.schema_version);
+            const schemaMatch = schemaVersion.match(/^(\d+)\.(\d+)$/);
+            if (!schemaMatch) {
+                return { valid: false, error: 'metadata.schema_version must use major.minor format.' };
+            }
+            if (schemaMatch[1] !== '1') {
+                return { valid: false, error: `Unsupported schema_version: ${schemaVersion}` };
+            }
+            if (!raw.metadata || typeof raw.metadata !== 'object' || Array.isArray(raw.metadata)) {
+                return { valid: false, error: 'metadata must be an object.' };
+            }
+            if (!raw.system || typeof raw.system !== 'object' || Array.isArray(raw.system)) {
+                return { valid: false, error: 'system must be an object.' };
+            }
             if (!Array.isArray(raw.atoms)) {
                 return { valid: false, error: 'atoms must be an array.' };
             }
             if (!Array.isArray(raw.pseudo)) {
                 return { valid: false, error: 'pseudo must be an array.' };
+            }
+            if (!raw.grid || typeof raw.grid !== 'object' || Array.isArray(raw.grid)) {
+                return { valid: false, error: 'grid must be an object.' };
+            }
+            if (!Array.isArray(raw.grid.num_rgrid) || !Array.isArray(raw.grid.num_kgrid)) {
+                return { valid: false, error: 'grid.num_rgrid and grid.num_kgrid must be arrays.' };
+            }
+            if (!raw.parallel || typeof raw.parallel !== 'object' || Array.isArray(raw.parallel)) {
+                return { valid: false, error: 'parallel must be an object.' };
+            }
+            if (!Array.isArray(raw.parallel.nproc_rgrid)) {
+                return { valid: false, error: 'parallel.nproc_rgrid must be an array.' };
             }
             if (!['fractional', 'cartesian'].includes(raw.system.atomic_coordinate_mode)) {
                 return { valid: false, error: 'system.atomic_coordinate_mode must be fractional or cartesian.' };
